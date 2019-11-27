@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const{ ensure} = require('../../Auth/config/auth');
 const Owner = require('../Models/Owners');
 const mongoose = require('mongoose');
 
