@@ -5,6 +5,9 @@ require('dotenv/config');
 //Initializing The Server
 const app = express();
 
+
+app.use(express.static("uploads/Store"))
+//Loading Routes 
 const appointmentRoutes = require("./Routes/appointments");
 const customerRouters = require('./Routes/customers');
 const ownerRoutes  = require('./Routes/owners');

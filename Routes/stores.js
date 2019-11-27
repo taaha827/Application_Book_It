@@ -3,7 +3,33 @@ const router = express.Router();
 const Store = require('../Models/Stores');
 const owner = require('../Models/Owners');
 const multer = require('multer');
-
+var storeLocation =  'uploads/Store/';
+const storage = multer.diskStorage({
+    destination: function(req, file, cb) {
+      cb(null, storeLocation);
+    },
+    filename: function(req, file, cb) {
+      cb(null, new Date().toISOString() + file.originalname);
+    }
+  });
+var server_port =  process.env.PORT || 5000;
+var server_host =  '0.0.0.0';
+const fileFilter = (req, file, cb) => {
+    // reject a file
+    if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+      cb(null, true);
+    } else {
+      cb(null, false);
+    }
+  };
+  
+  const upload = multer({
+    storage: storage,
+    limits: {
+      fileSize: 1024 * 1024 * 5
+    },
+    fileFilter: fileFilter
+  });
 //API Routes
 
 router.post('/create',(req,res)=>{
@@ -116,53 +142,31 @@ router.put('/update/:storeId',(req,res)=>{
 })
 
 
-router.post('/Image/Upload/:storeId',(req,res)=>{
-    const storage = multer.diskStorage({
-        destination: (req, file, callback) => {
-            callback(null, ("/Media/Store/Images/"+req.params.storeId+"/"));
-        },
-        filename: (req, file, callback) => {
-            callback(null,file.originalname);
+router.post('/Image/Upload/:storeId',upload.single("storeImage")
+,(req,res)=>{
+    Store.findByIdAndUpdate(req.params.storeId,{
+        $push: {
+            images: server_host+":"+server_port+"/"+req.file.path
+    
+    },{new:true}).then(result=>{
+        if(!result){
+            return res.status(400).send({message:"Could Not store Image"});
+        }else{
+            return res.status(200).send({imageURL:server_host+":"+server_port+"/"+req.file.path,message:"image Stored Succesfully"});
         }
+    })
+    .catch(err =>{
+        return res.status(500).send({message:"Could Not Process Request"});
     });
-
-    const upload = multer({storage: storage}).any('file');
-        upload(req, res, (err) => {
-            if (err) {
-                return res.status(400).send({
-                    message: helper.getErrorMessage(err)
-                });
-            }
-            let results = req.files.map((file) => {
-                return {
-                    mediaName: file.filename,
-                    mediaSource: 'http://' + req.headers.host +"Media/Store/Images"+req.params.storeId+"/"+ file.filename
-                }
-            });
-            res.status(200).json(results);
-        });
-        Store.findByIdAndUpdate(req.params.storeId,{
-            $push: {
-                images: results.mediaSource
-            }
-        },{new:true})
-        .then(store =>{
-            if(!store){
-                return res.status(404).send({message:"Store Not found to update"});
-            }else{
-                return res.status(200).send({UpdateStore:store,message:"Store Updated Successfully"});
-            }
-        })
-        .catch(err=>{
-            return res.status(500).send({message:"Could Not Process Request"});
-        })
-    });
+});
+      
+});
 
 
 router.post('/Image/Remove/:storeId/:image',(req,res)=>{
     Store.findByIdAndUpdate(req.params.storeId,{
-        $push: {
-            images: req.params.image
+        $pull: {
+            images: req.file.path
         }
     
     },{new:true}).then(result=>{
