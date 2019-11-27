@@ -23,7 +23,7 @@ app.use("/store",storeRoutes);
 
 
 //Connection TO Database
-mongoose.connect(process.env.DB_CONNECTION,{useNewUrlParser:true,useUnifiedTopology: true},()=>{
+mongoose.connect(" mongodb+srv://taaha827:randompassword@cluster0-xezp5.mongodb.net/test?retryWrites=true&w=majority",{useNewUrlParser:true,useUnifiedTopology: true},()=>{
     console.log("Connection Successfull")
 });
 
