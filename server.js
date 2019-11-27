@@ -28,4 +28,4 @@ mongoose.connect(" mongodb+srv://taaha827:randompassword@cluster0-xezp5.mongodb.
 });
 
 
-app.listen(5000);
+app.listen(process.env.PORT||5000);
