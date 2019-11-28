@@ -34,12 +34,13 @@ const fileFilter = (req, file, cb) => {
 
 router.post('/create',(req,res)=>{
     const {ownerId,name,desc,contact,email,address,location,category,subcategory,images} = req.body;
-    if(!ownerID||!name||!contact||!email||!location||!category){
+    console.log(req.body);
+    if(!req.body){
         res.status(400).send({ message: 'All Required fields Not Entered' });
         return;
     }
     else{
-        const newStore = new Store(req.body.store);
+        const newStore = new Store(req.body);
         newStore.save().then(store=>{
             res.status(200).send({storeId:store._id,message:"Store Created Successfully"});
             return;
