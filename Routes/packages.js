@@ -2,19 +2,24 @@ const express = require('express');
 const router = express.Router();
 const Store = require('../Models/Stores');
 const Package = require('../Models/Packages');
-
+const owner = require('../Models/Owners');
 //API Routes
 router.post('/create',(req,res)=>{
+    console.log(req.body.title);
+    console.log(req.body.description);
+    console.log(req.body.price);
+    console.log(req.body.store);
     if(!req.body){
         return res.status(400).send({message:"Package Cannot Be Null"})
     }
     else{
-        const newPackage = new Store(req.body);
+        const newPackage = new Package(req.body);
         newPackage.save().then(result=>{
             res.status(200).send({packageId:result._id,message:"Oackage Created Successfully"});
             return;
         })
         .catch(err => {
+            console.log(err);
             res.status(500).send({message:"Could Not Create New Package, Try Again"});
             return;
         });
@@ -46,7 +51,7 @@ router.delete('/delete/:packageId/:ownerId',(req,res)=>{
     });
 });
 
-router.get('/getAll:storeId',(req,res)=>{
+router.get('/getAll/:storeId',(req,res)=>{
     const storeId = req.params.storeId;
     if(!storeId){
         return res.status(404).send({message:"Store Id can not be null"});
@@ -62,7 +67,7 @@ router.get('/getAll:storeId',(req,res)=>{
 
 
 router.get('/getStore/:packageId',(req,res)=>{
-    const packageId = req.param.packageId;
+    const packageId = req.params.packageId;
     if(!packageId){
         return res.status(404).send({message:"Package Not Found"});
     }
@@ -82,7 +87,7 @@ router.get('/getStore/:packageId',(req,res)=>{
 
 
 router.put('/update/:storeId',(req,res)=>{
-    if(!req.body.content){
+    if(!req.body){
         return res.status(400).send({message:"Cannot Update Store with no Reference"});
     }
     else{

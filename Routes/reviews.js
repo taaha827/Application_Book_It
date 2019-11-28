@@ -18,6 +18,7 @@ router.post('/create',(req,res)=>{
             return;
         })
         .catch(err => {
+            console.log(err);
             res.status(500).send({message:"Could Not Add New Review, Try Again"});
             return;
         });
@@ -49,12 +50,12 @@ router.delete('/delete/:reviewId/:customerId',(req,res)=>{
     });
 });
 
-router.get('/getAll:storeId',(req,res)=>{
+router.get('/getAll/:storeId',(req,res)=>{
     const storeId = req.params.storeId;
     if(!customerId){
         return res.status(404).send({message:"Customer Id can not be null"});
     }else{
-        Review.find({stores:storeId}).populate("_customers").populate("_subreviews").then(result =>{
+        Review.find({stores:storeId}).populate("customers").populate("subreviews").then(result =>{
             return res.status(200).send(result);
         })
         .catch(err=>{
@@ -65,12 +66,13 @@ router.get('/getAll:storeId',(req,res)=>{
 
 
 router.get('/getReview/:reviewId',(req,res)=>{
-    const reviewId = req.param.reviewId;
+    const reviewId = req.params.reviewId;
+
     if(!reviewId){
         return res.status(404).send({message:"Review Not Found"});
     }
     else{
-        Review.findOne({_id:reviewId}).populate("_customer").populate("_subreviews").then(result=>{
+        Review.findOne({_id:reviewId}).populate("customer").populate("subreviews").then(result=>{
             if(!result){
                 return res.status(400).send({message:"Review Not Found!"});
             }else{
@@ -85,7 +87,7 @@ router.get('/getReview/:reviewId',(req,res)=>{
 
 
 router.put('/update/:reviewId',(req,res)=>{
-    if(!req.body.content){
+    if(!req.body){
         return res.status(400).send({message:"Cannot Update Store with no Reference"});
     }
     else{

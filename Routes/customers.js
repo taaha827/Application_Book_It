@@ -61,12 +61,12 @@ router.get('/getCustomer/:customerId',(req,res)=>{
 
 
 router.put('/update/:customerId',(req,res)=>{
-    if(!req.body.content){
+    if(!req.body){
         return res.status(400).send({message:"Cannot Update Customer with no Reference"});
     }
     else{
         Customer.findByIdAndUpdate(req.params.customerId,{
-            status:req.body.status
+            status:req.body
         },{new:true})
         .then(result =>{
             if(!result){

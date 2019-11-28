@@ -54,12 +54,12 @@ router.delete('/delete/:AppointmentId/:customerId',(req,res)=>{
     });
 });
 
-router.get('/getAll:ownerId',(req,res)=>{
+router.get('/getAll/:ownerId',(req,res)=>{
     const ownerId = req.params.ownerId;
-    if(!customerId){
+    if(!ownerId){
         return res.status(404).send({message:"Owner Id can not be null"});
     }else{
-        appointment.find({owner:ownerId}).populate("_stores").populate("_customers").then(result =>{
+        appointment.find({owner:ownerId}).populate("store").populate("customer").then(result =>{
             return res.status(200).send(result);
         })
         .catch(err=>{
@@ -70,12 +70,12 @@ router.get('/getAll:ownerId',(req,res)=>{
 
 
 router.get('/getAppointment/:appointmentId',(req,res)=>{
-    const appointmentId = req.param.appointmentId;
+    const appointmentId = req.params.appointmentId;
     if(!appointmentId){
         return res.status(404).send({message:"Appointment  Not Found"});
     }
     else{
-        appointment.findOne({_id:appointmentId}).populate("_stores").populate("_customers").then(result=>{
+        appointment.findOne({_id:appointmentId}).populate("store").populate("customer").then(result=>{
             if(!result){
                 return res.status(400).send({message:"Review Not Found!"});
             }else{
@@ -95,7 +95,7 @@ router.put('/update/:appointmentId',(req,res)=>{
     }
     else{
         appointment.findByIdAndUpdate(req.params.appointmentId,{
-            status:req.body.status
+            status:req.body
         },{new:true})
         .then(result =>{
             if(!result){

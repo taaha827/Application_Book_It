@@ -47,7 +47,7 @@ router.delete('/delete/:PostId/:ownerId',(req,res)=>{
     });
 });
 
-router.get('/getAll:storeId',(req,res)=>{
+router.get('/getAll/:storeId',(req,res)=>{
     const storeId = req.params.storeId;
     if(!storeId){
         return res.status(404).send({message:"Store Id can not be null"});
@@ -63,7 +63,7 @@ router.get('/getAll:storeId',(req,res)=>{
 
 
 router.get('/getPost/:postId',(req,res)=>{
-    const postId = req.param.postId;
+    const postId = req.params.postId;
     if(!postId){
         return res.status(404).send({message:"Post  Not Found"});
     }
@@ -83,15 +83,15 @@ router.get('/getPost/:postId',(req,res)=>{
 
 
 router.put('/update/:postId',(req,res)=>{
-    if(!req.body.content){
+    if(!req.body){
         return res.status(400).send({message:"Cannot Update Post with no Reference"});
     }
     else{
         appointment.findByIdAndUpdate(req.params.postId,{
-            store:req.body.post.store,
-            title:req.body.post.title,
-            description:req.body.post.description,
-            image:req.body.post.image,
+            store:req.body.store,
+            title:req.body.title,
+            description:req.body.description,
+            image:req.body.image,
             
         },{new:true})
         .then(result =>{

@@ -56,7 +56,7 @@ router.delete('/delete/:OwnerId',(req,res)=>{
 });
 
 router.get('/getOwner/:OwnerId',(req,res)=>{
-    const OwnerId = req.param.OwnerId;
+    const OwnerId = req.params.OwnerId;
     if(!OwnerId){
         return res.status(404).send({message:"Owner  Not Found"});
     }

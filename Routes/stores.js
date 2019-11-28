@@ -77,12 +77,12 @@ router.delete('/delete/:storeId/:ownerId',(req,res)=>{
     });
 });
 
-router.get('/getAll:ownerId',(req,res)=>{
+router.get('/getAll/:ownerId',(req,res)=>{
     const ownerId = req.params.ownerId;
     if(!ownerId){
         return res.status(404).send({message:"Owner Id can not be null"});
     }else{
-        Store.find({owner:ownerId}).populate("_owner").then(stores =>{
+        Store.find({owner:ownerId}).populate("owner").then(stores =>{
             return res.status(200).send(stores);
         })
         .catch(err=>{

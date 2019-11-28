@@ -5,14 +5,14 @@ const reviewSchema = mongoose.Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref: "Customers",
         required:true
+    },   
+    rating:{
+        type:String,
+        required:true
     },
     dateTime:{
         type:Date,
         default:Date.now
-    },
-    rating:{
-        type:String,
-        required:true
     },
     description:{
         type:String,
