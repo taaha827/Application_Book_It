@@ -141,14 +141,14 @@ router.put('/update/:storeId',(req,res)=>{
     }
 })
 
-
+var options = { new: true };
 router.post('/Image/Upload/:storeId',upload.single("storeImage")
 ,(req,res)=>{
     Store.findByIdAndUpdate(req.params.storeId,{
         $push: {
             images: server_host+":"+server_port+"/"+req.file.path
     
-    },{new:true}).then(result=>{
+    }},{new:true}).then(result=>{
         if(!result){
             return res.status(400).send({message:"Could Not store Image"});
         }else{
@@ -160,7 +160,6 @@ router.post('/Image/Upload/:storeId',upload.single("storeImage")
     });
 });
       
-});
 
 
 router.post('/Image/Remove/:storeId/:image',(req,res)=>{

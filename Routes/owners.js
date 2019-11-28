@@ -11,18 +11,21 @@ startTime
 endTime
 status */
 router.post('/create',(req,res)=>{
-    if(!req.body.content){
+    console.log("Request Body");
+    console.log(req.body);
+    if(!req.body){
         res.status(400).send({ message: 'All Required fields Not Entered' });
         return;
     }
     else{
-        const newAppointment = new appointment(req.body.owner);
+        const newAppointment = new Owner(req.body);
         newAppointment.save().then(result=>{
-            res.status(200).send({ownerId:result._id,message:"Owner Created Successfully"});
+            res.status(200).send({ownerId:result._id});
             return;
         })
         .catch(err => {
-            res.status(500).send({message:"Could Not Add New Appointment, Try Again"});
+            console.log(err);
+            res.status(500).send({message:"Could Not Add New Owner, Try Again"});
             return;
         });
     }
@@ -97,5 +100,16 @@ router.put('/update/:ownerid',(req,res)=>{
     }
 });
 
+router.get('/getOwnerId/:email',(req,res)=>{
+    console.log("In getOwnerId");
+    console.log(req.params.email);
+    Owner.find({email:req.params.email}).then(user=>{
+        console.log(user[0]._id);
+        if(!user){
+            return res.status(404).send({message:"User Not found"});
+        }
+        else{return res.status(200).send({ownerId:user[0]._id});}
+    })
+});
 
 module.exports = router;

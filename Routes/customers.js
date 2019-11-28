@@ -4,14 +4,14 @@ const Customer = require('../Models/Customers');
 const mongoose = require('mongoose');
 
 router.post('/create',(req,res)=>{
-    if(!req.body.content){
+    if(!req.body){
         res.status(400).send({ message: 'All Required fields Not Entered' });
         return;
     }
     else{
-        const newCustomer = new Customer(req.body.customer);
+        const newCustomer = new Customer(req.body);
         newCustomer.save().then(result=>{
-            res.status(200).send({customerId:result._id,message:"Customer Created Successfully"});
+            res.status(200).send({customerId:result._id});
             return;
         })
         .catch(err => {
@@ -41,7 +41,7 @@ router.delete('/delete/:customerId',(req,res)=>{
 
 
 router.get('/getCustomer/:customerId',(req,res)=>{
-    const customerId = req.param.customerId;
+    const customerId = req.params.customerId;
     if(!customerId){
         return res.status(404).send({message:"Customer  Not Found"});
     }
@@ -81,5 +81,14 @@ router.put('/update/:customerId',(req,res)=>{
     }
 });
 
-
+router.get('/getCustomerId/:email',(req,res)=>{
+    console.log(req.params.email);
+    Customer.find({email:req.params.email}).then(user=>{
+        console.log(user[0]._id);
+        if(!user){
+            return res.status(404).send({message:"User Not found"});
+        }
+        else{return res.status(200).send({ownerId:user[0]._id});}
+    })
+});
 module.exports = router;
