@@ -5,12 +5,12 @@ const mongoose = require('mongoose');
 const Owner = require('../Models/Owners');
 
 router.post('/create',(req,res)=>{
-    if(!req.body.content){
+    if(!req.body){
         res.status(400).send({ message: 'All Required fields Not Entered' });
         return;
     }
     else{
-        const newPosts = new Post(req.body.post);
+        const newPosts = new Post(req.body);
         newPosts.save().then(result=>{
             res.status(200).send({postId:result._id,message:"Post Created Successfully"});
             return;

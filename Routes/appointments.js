@@ -12,19 +12,12 @@ endTime
 status */
 router.post('/create',(req,res)=>{
     const {customerId,ownerId,storeId,startTime,endTime,status} = req.body;
-    if(!req.body.content){
+    if(!req.body){
         res.status(400).send({ message: 'All Required fields Not Entered' });
         return;
     }
     else{
-        const newAppointment = new appointment({
-            customer:new mongoose.Types.ObjectId(customerId),
-            owner: new mongoose.Types.ObjectId(ownerId),
-            store: new mongoose.Types.ObjectId(storeId),
-            startTime:startTime,
-            endTime:endTime,
-            status:status
-        });
+        const newAppointment = new appointment(req.body);
         newAppointment.save().then(result=>{
             res.status(200).send({AppointmentId:result._id,message:"Appointment Created Successfully"});
             return;

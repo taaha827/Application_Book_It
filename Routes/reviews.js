@@ -7,18 +7,12 @@ const Review = require('../Models/Reviews');
 
 router.post('/create',(req,res)=>{
     const {customerId,rating,desc,appointmentId,reviewId} = req.body;
-    if(!req.body.content){
+    if(!req.body){
         res.status(400).send({ message: 'All Required fields Not Entered' });
         return;
     }
     else{
-        const newReview = new Review({
-            customerId,
-            rating,
-            desc,
-            appointmentId,
-            reviewId
-        });
+        const newReview = new Review(req.body);
         newReview.save().then(result=>{
             res.status(200).send({reviewId:result._id,message:"Review Created Successfully"});
             return;

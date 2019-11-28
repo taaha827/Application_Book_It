@@ -5,11 +5,11 @@ const Package = require('../Models/Packages');
 
 //API Routes
 router.post('/create',(req,res)=>{
-    if(!req.body.package){
+    if(!req.body){
         return res.status(400).send({message:"Package Cannot Be Null"})
     }
     else{
-        const newPackage = new Store(req.body.package);
+        const newPackage = new Store(req.body);
         newPackage.save().then(result=>{
             res.status(200).send({packageId:result._id,message:"Oackage Created Successfully"});
             return;
