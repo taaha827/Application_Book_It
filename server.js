@@ -5,7 +5,8 @@ require('dotenv/config');
 //Initializing The Server
 const app = express();
 
-app.use(express.urlencoded({extended:false}));
+app.use(express.urlencoded({extended:true}));
+app.use(bodyParser.json());
 
 app.use(express.static("uploads/Store"))
 //Loading Routes 
