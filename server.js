@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 require('dotenv/config');
 //Initializing The Server
 const app = express();
+const bodyParser = require("body-parser");
 
 app.use(express.urlencoded({extended:true}));
 app.use(bodyParser.json());
