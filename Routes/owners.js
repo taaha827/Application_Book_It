@@ -20,7 +20,7 @@ router.post('/create',(req,res)=>{
     else{
         const newAppointment = new Owner(req.body);
         newAppointment.save().then(result=>{
-            res.status(200).send({ownerId:result._id});
+            res.status(200).send(result._id);
             return;
         })
         .catch(err => {
