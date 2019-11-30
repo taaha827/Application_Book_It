@@ -11,11 +11,11 @@ router.post('/create',(req,res)=>{
     else{
         const newCustomer = new Customer(req.body);
         newCustomer.save().then(result=>{
-            res.status(200).send({customerId:result._id});
+            res.status(200).send(result._id);
             return;
         })
         .catch(err => {
-            res.status(500).send({message:"Could Not Add New Appointment, Try Again"});
+            res.status(500).send({message:"Could Not Add New Customer, Try Again"});
             return;
         });
     }
