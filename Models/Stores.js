@@ -32,6 +32,20 @@ const storeSchema = mongoose.Schema({
     category:{
         type: String
     },
+    city:{
+        type:String
+    },
+    startTime:{
+        type:String
+    },
+    closeTime:{
+        type:String 
+    },
+    package:[{
+        title:String,
+        description:String,
+        price:Number
+    }],
     subcategory:[String],
     images:[String]
 });

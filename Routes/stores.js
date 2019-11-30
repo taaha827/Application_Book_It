@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const Store = require('../Models/Stores');
 const owner = require('../Models/Owners');
+const Posts = require('../Models/Posts');
+
 const multer = require('multer');
 var storeLocation =  'uploads/Store/';
 const storage = multer.diskStorage({
@@ -62,12 +64,20 @@ router.delete('/delete/:storeId/:ownerId',(req,res)=>{
             res.status(400).send({message:"Owner Not Found"});
             return;
         }else{
+            //Read all the images from store and post related and just use 
+            //fs.unlink to delete them make sure to refactor the code in the
+            //morning as well
             Store.findByIdAndRemove(storeId).then(store=>{
                 if(!store){
                     return res.status(404).send({message:"Store Not Found"});
                 }
                 else{
-                    return res.status(200).send({"storeId":store._id,"message":"Store Deleted Successfully"});
+                    Posts.deleteMany({store:storeId}),function(err){
+                        if(err){
+                            return res.status(414).json({message:"Not all Posts Deleted of store"});
+                        }
+                        }
+                        return res.status(200).send({"storeId":store._id,"message":"Store Deleted Successfully"});
                 }
             })
         }
