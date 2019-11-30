@@ -6,10 +6,15 @@ require('dotenv/config');
 const app = express();
 const bodyParser = require("body-parser");
 
-app.use(express.urlencoded({extended:true}));
+app.use(express.urlencoded({extended:false}));
+app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json());
 
 app.use(express.static("uploads/Store"))
+app.use(express.static("uploads/Customer"))
+app.use(express.static("uploads/Owner"))
+app.use(express.static("uploads/Posts"))
+
 //Loading Routes 
 const appointmentRoutes = require("./Routes/appointments");
 const customerRouters = require('./Routes/customers');
@@ -18,6 +23,7 @@ const packageRoutes  = require('./Routes/packages');
 const postRoutes  = require('./Routes/posts');
 const reviewRoutes =require('./Routes/reviews');
 const storeRoutes  = require('./Routes/stores');
+const generalRoute = require('./Routes/gerneal');
 
 app.use("/appointments",appointmentRoutes);
 app.use("/customer",customerRouters);
@@ -26,6 +32,7 @@ app.use("/package",packageRoutes);
 app.use("/post",postRoutes);
 app.use("/review",reviewRoutes);
 app.use("/store",storeRoutes);
+app.use('/general',generalRoute);
 
 
 //Connection TO Database
