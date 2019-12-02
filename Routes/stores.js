@@ -1,3 +1,4 @@
+
 const express = require('express');
 const router = express.Router();
 const Store = require('../Models/Stores');
@@ -32,6 +33,12 @@ const fileFilter = (req, file, cb) => {
     },
     fileFilter: fileFilter
   });
+
+var aws = require('aws-sdk');
+var BUCKET = 'bookerapp';
+aws.config.loadFromPath('./config.json');
+var s3 = new aws.S3();
+
 //API Routes
 
 router.post('/create',(req,res)=>{
@@ -64,9 +71,8 @@ router.delete('/delete/:storeId/:ownerId',(req,res)=>{
             res.status(400).send({message:"Owner Not Found"});
             return;
         }else{
-            //Read all the images from store and post related and just use 
-            //fs.unlink to delete them make sure to refactor the code in the
-            //morning as well
+            objects =[];
+            
             Store.findByIdAndRemove(storeId).then(store=>{
                 if(!store){
                     return res.status(404).send({message:"Store Not Found"});

@@ -47,7 +47,7 @@ const storeSchema = mongoose.Schema({
         price:Number
     }],
     subcategory:[String],
-    images:[String]
+    images:String
 });
 
 module.exports = mongoose.model("Stores",storeSchema);

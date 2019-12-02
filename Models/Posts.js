@@ -7,7 +7,7 @@ const postSchema = mongoose.Schema({
     },
     title:String,
     description:String,
-    image:String,
+    image:[String],
     dateTime:{
         type:Date,
         default:Date.now
