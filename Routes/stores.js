@@ -63,16 +63,41 @@ router.post('/create',(req,res)=>{
 
 
 
-router.delete('/delete/:storeId/:ownerId',(req,res)=>{
+router.delete('/delete/:storeId/:ownerId',async (req,res)=>{
     const ownerId = req.params.ownerId;
     const storeId = req.params.storeId;
-    owner.findOne({_id:ownerId}).then(ownerObj=>{
+    owner.findOne({_id:ownerId}).then(async (ownerObj)=>{
         if(!ownerObj){
             res.status(400).send({message:"Owner Not Found"});
             return;
         }else{
+            console.log("finding store imagmes");
             objects =[];
-            
+            //Deleting Images
+            const storeImages =await Store.find({_id:storeId}).select('images');
+            objects.push({Key:"./uploads/"+storeImages[0]["images"]});
+            const postImages = await Posts.find({_id:"5de259101c9d440000567b7d"});
+            console.log(postImages);
+            postImages.forEach(element=>{
+                        console.log(typeof element);
+                        console.log("In Posts pushing Images of each post");
+                        element["image"].forEach(element1=>{
+                            console.log("Pushing: "+element1);
+                            objects.push({Key:"./uploads/"+element1});
+                        });
+                    });
+            console.log(objects);    
+            var params = {
+                Bucket: 'bookerapp', 
+                Delete: { // required
+                  Objects:objects,
+                },
+              };
+                        
+              s3.deleteObjects(params, function(err, data) {
+                if (err) return res.status(515).send({message:"Store not deleted Images were not delted"});// an error occurred
+                else     console.log("Deleted Images of posts and stores");           // successful response
+              });
             Store.findByIdAndRemove(storeId).then(store=>{
                 if(!store){
                     return res.status(404).send({message:"Store Not Found"});
@@ -89,6 +114,7 @@ router.delete('/delete/:storeId/:ownerId',(req,res)=>{
         }
     })
     .catch(err=>{
+        console.log(err);
         res.status(500).send({message:"Server Could Not Process Request Try Again"});
     });
 });
@@ -103,7 +129,7 @@ router.get('/getAll/:ownerId',(req,res)=>{
         })
         .catch(err=>{
             return res.status(500).send({message:"Could Not Process Request"});
-        })
+        });
     }
 });
 

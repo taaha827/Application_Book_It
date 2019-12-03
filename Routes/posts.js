@@ -3,6 +3,10 @@ const router = express.Router();
 const Post = require('../Models/Posts');
 const mongoose = require('mongoose');
 const Owner = require('../Models/Owners');
+var aws = require('aws-sdk');
+var BUCKET = 'bookerapp';
+aws.config.loadFromPath('./config.json');
+var s3 = new aws.S3();
 
 router.post('/create',(req,res)=>{
     if(!req.body){
@@ -32,6 +36,27 @@ router.delete('/delete/:PostId/:ownerId',(req,res)=>{
             res.status(400).send({message:"Owner Not Found"});
             return;
         }else{
+            objects =[];
+            Posts.find({store:storeId}).select('image').then(images=>{
+                images.forEach(element=>{
+                    element["image"].forEach(element1=>{
+                        objects.push({Key:"./uploads/"+element1});
+                    });
+                });
+            })            
+            .catch(err=>{console.log(err)});
+            var params = {
+                Bucket: 'bookerapp', 
+                Delete: { // required
+                  Objects:objects,
+                },
+              };
+              
+              s3.deleteObjects(params, function(err, data) {
+                if (err) return res.status(515).send({message:"Images not deleted from server try again"}) // an error occurred
+                else     console.log("Deleted Images of posts and stores");           // successful response
+              });
+   
             Post.findByIdAndRemove(PostId).then(result=>{
                 if(!result){
                     return res.status(404).send({message:"Post Not Found"});
