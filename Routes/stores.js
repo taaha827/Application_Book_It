@@ -135,12 +135,13 @@ router.get('/getAll/:ownerId',(req,res)=>{
 
 
 router.get('/getStore/:storeId',(req,res)=>{
-    const storeID = req.params.storeID;
-    if(!storeId){
+    const storeID = req.params.storeId;
+    console.log(req.params.storeId);
+    if(!storeID){
         return res.status(404).send({message:"Store Not Found"});
     }
     else{
-        Store.findOne({_id:storeId}).populate("_owner").then(store=>{
+        Store.findOne({_id:storeID}).populate("_owner").then(store=>{
             if(!store){
                 return res.status(400).send({message:"Store Not Found!"});
             }else{
