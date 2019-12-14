@@ -135,7 +135,7 @@ router.get('/getAll/:ownerId',(req,res)=>{
 
 
 router.get('/getStore/:storeId',(req,res)=>{
-    const storeID = req.param.storeID;
+    const storeID = req.params.storeID;
     if(!storeId){
         return res.status(404).send({message:"Store Not Found"});
     }

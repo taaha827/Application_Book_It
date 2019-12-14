@@ -26,7 +26,12 @@ router.post('/create',(req,res)=>{
     }
 });
 
-
+const products = [{title:"test 1",price:"1000",Description:"Dummy Description",id:1},
+{title:"test 1",price:"1000",Description:"Dummy Description",id:5},
+{title:"test 1",price:"1000",Description:"Dummy Description",id:4},
+{title:"test 1",price:"1000",Description:"Dummy Description",id:2},
+{title:"test 1",price:"1000",Description:"Dummy Description",id:3}
+]
 
 router.delete('/delete/:packageId/:ownerId',(req,res)=>{
     const ownerId = req.params.ownerId;
