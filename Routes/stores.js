@@ -35,7 +35,7 @@ const fileFilter = (req, file, cb) => {
   });
 
 var aws = require('aws-sdk');
-var BUCKET = 'bookerapp';
+var BUCKET = 'asifbucketclass';
 aws.config.loadFromPath('./config.json');
 var s3 = new aws.S3();
 
