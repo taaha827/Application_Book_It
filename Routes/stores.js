@@ -156,18 +156,18 @@ router.get('/getStore/:storeId',(req,res)=>{
 
 
 router.put('/update/:storeId',(req,res)=>{
-    if(!req.body.content){
+    if(!req.params.storeId){
         return res.status(400).send({message:"Cannot Update Store with no Reference"});
     }
     else{
+        console.log(req.body);
         Store.findByIdAndUpdate(req.params.storeId,{
-            owner:req.body.ownerId,
+            owner:req.body.owner,
             name:req.body.name,
             description:req.body.description,
             contact:req.body.contact,
             email:req.body.email,
-            address:req.body.address.address,
-            location:req.body.location,
+            address:req.body.address,
             category:req.body.category,
             subcategory:req.body.subcategory,
             images:req.body.images
@@ -180,6 +180,7 @@ router.put('/update/:storeId',(req,res)=>{
             }
         })
         .catch(err=>{
+            console.log(err);
             return res.status(500).send({message:"Could Not Process Request"});
         })
     }
@@ -205,8 +206,9 @@ router.post('/Image/Upload/:storeId',upload.single("storeImage")
 });
       
 
-
+// add if (!req.user) to add authentication issues 
 router.post('/Image/Remove/:storeId/:image',(req,res)=>{
+    
     Store.findByIdAndUpdate(req.params.storeId,{
         $pull: {
             images: req.file.path

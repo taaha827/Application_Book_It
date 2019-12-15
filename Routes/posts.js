@@ -75,7 +75,7 @@ router.delete('/delete/:PostId/:ownerId',(req,res)=>{
 router.get('/getAll/:storeId',(req,res)=>{
     
     const storeId = req.params.storeId;
-    console.log(storeId);
+    
     if(!storeId){
         return res.status(404).send({message:"Store Id can not be null"});
     }else{
