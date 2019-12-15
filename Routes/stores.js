@@ -88,7 +88,7 @@ router.delete('/delete/:storeId/:ownerId',async (req,res)=>{
                     });
             console.log(objects);    
             var params = {
-                Bucket: 'bookerapp', 
+                Bucket: 'asifbucketclass', 
                 Delete: { // required
                   Objects:objects,
                 },
@@ -163,21 +163,23 @@ router.put('/update/:storeId',async (req,res)=>{
         let storeImage = await getStoreImage(req.params.storeId);
         console.log(storeImage);
         if(storeImage!=null && req.body.images && storeImage != req.body.images){
-            storeImage = storeImage.split('/')[1];
+         
             
             console.log(storeImage);
             objects =[];
             objects.push({Key:storeImage});
             var params = {
-                Bucket: 'bookerapp', 
+                Bucket: 'asifbucketclass', 
                 Delete: { // required
                   Objects:objects,
                 },
               };
                         
               s3.deleteObjects(params, function(err, data) {
-                if (err) return res.status(515).send({message:"Store not deleted Images were not delted"});// an error occurred
-                else     console.log("Deleted Images of posts and stores");           // successful response
+                if (err){
+                    console.log(err);
+                     return res.status(515).send({message:"Store not deleted Images were not delted"});// an error occurred
+            }else     console.log("Deleted Images of posts and stores");           // successful response
               });
         }
         Store.findByIdAndUpdate(req.params.storeId,{
@@ -268,4 +270,21 @@ let getStoreImage = (storeId) =>{
         }).catch(err=>{console.log(err);});     
       });
 }
+router.delete('/delete/image/',(req,res)=>{
+    objects =[];
+    objects.push({Key:req.body.imageName});
+    var params = {
+        Bucket: 'asifbucketclass', 
+        Delete: { // required
+          Objects:objects,
+        },
+      };
+         console.log(objects);             
+      s3.deleteObjects(params, function(err, data) {
+        if (err){
+            console.log(err);
+             return res.status(515).send({message:"Store not deleted Images were not delted"});// an error occurred
+    }else     return res.status(200).send({message:"Image Deleted Succesfully"});         // successful response
+      });
+})
 module.exports = router;
