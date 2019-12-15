@@ -71,6 +71,7 @@ router.delete('/delete/:storeId/:ownerId',async (req,res)=>{
             res.status(400).send({message:"Owner Not Found"});
             return;
         }else{
+            
             console.log("finding store imagmes");
             objects =[];
             //Deleting Images
