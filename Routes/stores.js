@@ -170,7 +170,8 @@ router.put('/update/:storeId',(req,res)=>{
             address:req.body.address,
             category:req.body.category,
             subcategory:req.body.subcategory,
-            images:req.body.images
+            images:req.body.images,
+            package:req.body.package
         },{new:true})
         .then(store =>{
             if(!store){
