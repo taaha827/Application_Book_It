@@ -155,12 +155,28 @@ router.get('/getStore/:storeId',(req,res)=>{
 });
 
 
-router.put('/update/:storeId',(req,res)=>{
+router.put('/update/:storeId',async (req,res)=>{
     if(!req.params.storeId){
         return res.status(400).send({message:"Cannot Update Store with no Reference"});
     }
     else{
-        console.log(req.body);
+        let storeImage = await getStoreImage(req.params.storeId);
+      
+        if(storeImage!=null && req.body.images && storeImage != req.body.images){
+            objext =[];
+            objects.push({Key:storeImage});
+            var params = {
+                Bucket: 'bookerapp', 
+                Delete: { // required
+                  Objects:objects,
+                },
+              };
+                        
+              s3.deleteObjects(params, function(err, data) {
+                if (err) return res.status(515).send({message:"Store not deleted Images were not delted"});// an error occurred
+                else     console.log("Deleted Images of posts and stores");           // successful response
+              });
+        }
         Store.findByIdAndUpdate(req.params.storeId,{
             owner:req.body.owner,
             name:req.body.name,
@@ -235,4 +251,18 @@ router.get('/getStoreCount/:id',(req,res)=>{
         return res.status(200).send({count:stores.length,storeId:stores[0]["_id"]});
     }).catch(err=>{console.log(err)});
 });
+
+let getStoreImage = (storeId) =>{
+    return new Promise(function(resolve, reject){
+        Store.findById(storeId).then(store=>{
+            if(!store){
+                return null;
+            }
+            else{
+                
+                resolve(store.images);
+            }
+        }).catch(err=>{console.log(err);});     
+      });
+}
 module.exports = router;
