@@ -75,7 +75,7 @@ router.delete('/delete/:storeId/:ownerId',async (req,res)=>{
             objects =[];
             //Deleting Images
             const storeImages =await Store.find({_id:storeId}).select('images');
-            objects.push({Key:"./uploads/"+storeImages[0]["images"]});
+            objects.push({Key:storeImages[0]["images"]});
             const postImages = await Posts.find({_id:"5de259101c9d440000567b7d"});
             console.log(postImages);
             postImages.forEach(element=>{
@@ -83,7 +83,7 @@ router.delete('/delete/:storeId/:ownerId',async (req,res)=>{
                         console.log("In Posts pushing Images of each post");
                         element["image"].forEach(element1=>{
                             console.log("Pushing: "+element1);
-                            objects.push({Key:"./uploads/"+element1});
+                            objects.push({Key:element1});
                         });
                     });
             console.log(objects);    
@@ -161,9 +161,12 @@ router.put('/update/:storeId',async (req,res)=>{
     }
     else{
         let storeImage = await getStoreImage(req.params.storeId);
-      
+        console.log(storeImage);
         if(storeImage!=null && req.body.images && storeImage != req.body.images){
-            objext =[];
+            storeImage = storeImage.split('/')[1];
+            
+            console.log(storeImage);
+            objects =[];
             objects.push({Key:storeImage});
             var params = {
                 Bucket: 'bookerapp', 
