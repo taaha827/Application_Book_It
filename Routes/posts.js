@@ -134,12 +134,11 @@ router.put('/update/:postId', async (req, res) => {
                 console.log("Deleted Successfully");        // successful response
             });
         }
-        post.findByIdAndUpdate(req.params.postId, {
+        Post.findByIdAndUpdate(req.params.postId, {
             store: req.body.storeId,
             title: req.body.title,
             description: req.body.description,
             image: req.body.image,
-
         }, { new: true })
             .then(result => {
                 if (!result) {
