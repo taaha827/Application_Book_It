@@ -114,7 +114,7 @@ router.put('/update/:postId', async (req, res) => {
         return res.status(400).send({ message: "Cannot Update Post with no Reference" });
     }
     else {
-        let imagesToDelete = await getImagestoRemove(req.params.postId, req.body.store.image);
+        let imagesToDelete = await getImagestoRemove(req.params.postId, req.body.image);
         if (imagesToDelete != null && imagesToDelete.length != 0) {
             objects = [];
             imagesToDelete.forEach((item)=>{
@@ -126,7 +126,6 @@ router.put('/update/:postId', async (req, res) => {
                     Objects: objects,
                 },
             };
-            console.log(objects);
             s3.deleteObjects(params, function (err, data) {
                 if (err) {
                     console.log(err);
@@ -135,10 +134,10 @@ router.put('/update/:postId', async (req, res) => {
             });
         }
         post.findByIdAndUpdate(req.params.postId, {
-            store: req.body.store.storeId,
-            title: req.body.store.title,
-            description: req.body.store.description,
-            image: req.body.store.image,
+            store: req.body.storeId,
+            title: req.body.title,
+            description: req.body.description,
+            image: req.body.image,
 
         }, { new: true })
             .then(result => {
