@@ -28,30 +28,25 @@ router.post('/create', (req, res) => {
 
 
 
-router.delete('/delete/:PostId/:ownerId', (req, res) => {
+router.delete('/delete/:PostId/:ownerId', async (req, res) => {
     const ownerId = req.params.ownerId;
     const PostId = req.params.PostId;
-    Owner.findOne({ _id: ownerId }).then(result => {
+    Owner.findOne({ _id: ownerId }).then(async result => {
         if (!result) {
             res.status(400).send({ message: "Owner Not Found" });
             return;
         } else {
             objects = [];
-            Posts.find({ store: storeId }).select('image').then(images => {
-                images.forEach(element => {
-                    element["image"].forEach(element1 => {
-                        objects.push({ Key: "./uploads/" + element1 });
-                    });
-                });
-            })
-                .catch(err => { console.log(err) });
+            let postToDelete = await Post.find({_id:PostId});
+            postToDelete[0].image.forEach(item=>{
+                objects.push({Key:item});
+            });
             var params = {
                 Bucket: 'asifbucketclass',
                 Delete: { // required
                     Objects: objects,
                 },
             };
-
             s3.deleteObjects(params, function (err, data) {
                 if (err) return res.status(515).send({ message: "Images not deleted from server try again" }) // an error occurred
                 else console.log("Deleted Images of posts and stores");           // successful response
@@ -68,6 +63,7 @@ router.delete('/delete/:PostId/:ownerId', (req, res) => {
         }
     })
         .catch(err => {
+            console.log(err);
             res.status(500).send({ message: "Server Could Not Process Request Try Again" });
         });
 });
@@ -139,8 +135,7 @@ router.put('/update/:postId', async (req, res) => {
             title: req.body.title,
             description: req.body.description,
             image: req.body.image,
-        }, { new: true })
-            .then(result => {
+        }).then(result => {
                 if (!result) {
                     return res.status(404).send({ message: "Post Not found to update" });
                 } else {
