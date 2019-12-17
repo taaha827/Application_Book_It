@@ -4,7 +4,7 @@ const Post = require('../Models/Posts');
 const mongoose = require('mongoose');
 const Owner = require('../Models/Owners');
 var aws = require('aws-sdk');
-var BUCKET = 'bookerapp';
+var BUCKET = 'asifbucketclass';
 aws.config.loadFromPath('./config.json');
 var s3 = new aws.S3();
 
