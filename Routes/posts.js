@@ -130,7 +130,8 @@ router.put('/update/:postId', async (req, res) => {
                 if (err) {
                     console.log(err);
                     return res.status(515).send({ message: "Posts not deleted Images were not delted" });// an error occurred
-                }          // successful response
+                }  
+                console.log("Deleted Successfully");        // successful response
             });
         }
         post.findByIdAndUpdate(req.params.postId, {
@@ -149,7 +150,7 @@ router.put('/update/:postId', async (req, res) => {
             })
             .catch(err => {
                 return res.status(500).send({ message: "Could Not Process Request" });
-            })
+            });
     }
 });
 
