@@ -117,9 +117,9 @@ router.put('/update/:postId', async (req, res) => {
         let imagesToDelete = await getImagestoRemove(req.params.postId, req.body.image);
         if (imagesToDelete != null && imagesToDelete.length != 0) {
             objects = [];
-            imagesToDelete.forEach((item)=>{
-                objects.push({key:item});
-            })
+            for (var i =0;i<imagesToDelete.length;i++){
+                objects.push({Key:imagesToDelete[i]});
+            }
             var params = {
                 Bucket: 'asifbucketclass',
                 Delete: { // required
