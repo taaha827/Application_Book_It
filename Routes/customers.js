@@ -139,6 +139,21 @@ router.get('/getStore/:storeId',async (req,res)=>{
     return res.status(200).send(result);
 });
 
+router.get('/appointment/get/:appointmentId',(req,res)=>{
+    APPOIENTMENTS.find({_id:req.params.appointmentId}).populate('store')
+    .then(result=>{
+        if(!result){
+            return res.status(404).send({message:"No Appointments Found"});
+        }
+        else{
+            return res.status(200).send(result);
+        }
+    })
+    .catch(err=>{
+        console.log(err);
+    })
+    
+})
 router.get('/appointment/getAll/:customerId',(req,res)=>{
     APPOIENTMENTS.find({customer:req.params.customerId}).populate('store')
     .then(result=>{
@@ -153,7 +168,29 @@ router.get('/appointment/getAll/:customerId',(req,res)=>{
         console.log(err);
     })
 });
-
+router.get('/appointments/:storeId',(req,res)=>{
+    APPOIENTMENTS.find({store:req.params.storeId}).select({startTime:1,endTime:1,_id:0})
+    .then(result=>{
+        Result={}
+        Result['ReservedTimes']=[];
+        result.forEach(item=>{
+            let start = new Date(item.startTime)
+            let end = new Date(item.endTime);
+            Result['ReservedTimes'].push({
+                Date: start.getDate(),
+                Month: start.getMonth(),
+                Year:start.getFullYear(),
+                startHour: start.getHours(),
+                endHour:end.getHours()
+            });
+        })
+        return res.status(200).send(result);
+    })
+    .catch(err=>{
+        console.log(err);
+        res.status(503);
+    })
+})
 
 router.post('/appointment/:storeId',async(req,res)=>{
     let a = new Date(req.body.startTime);
@@ -164,12 +201,6 @@ router.post('/appointment/:storeId',async(req,res)=>{
     if(a.getHours()<startTime || a.getHours()> close ){
         return res.status(301).send({message:"Store is not operational at this time"});
     }
-    let StartTime = await APPOIENTMENTS.find({store:req.params.storeId}).select({startTime:1});
-    StartTime.forEach(item=>{
-        if(Date.parse(item.starttime)=== Date.parse(req.body.startTime)){
-            return res.status(300).send({message:"Appointment Already Exists at this time "});
-        }
-    });
     let newappointment = new APPOIENTMENTS(req.body);
     newAppointment.save().then(result=>{
         res.status(200).send({AppointmentId:result._id,message:"Appointment Created Successfully"});
@@ -195,7 +226,6 @@ let calculateTime = (time)=>{
         return parseInt(time)+12;
     }
 }
-
 
 
 

@@ -30,6 +30,10 @@ const appointmentSchema = mongoose.Schema({
         type:Date,
         required:true
     },
+    package:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Packages"
+    },
     status:{
         enum:['pending','approved','cancelled','completed','reviewed'],
         }
