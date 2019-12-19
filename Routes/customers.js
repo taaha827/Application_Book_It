@@ -234,21 +234,28 @@ router.get('/post/getcomments/:postId', async (req, res) => {
     kakashi ={}
     kakashi["comments"]=[];
     let result = await POSTS.findById(req.params.postId).select({comments:1});
-    result.comments.forEach(async item=>{
-                let com = await COMMENT.findById(item).populate('subreviews')
-                let subComments = []
-                subComments["answers"]=[];
-                 com.subreviews.forEach(item=>{
-                    subComments["answers"].push({sub:item.value});
-                })
-                kakashi["comments"].push({main:item.value,sub:subComments["answers"]});
-                console.log("in");
-                console.log(kakashi["comments"]);   
-                return res.status(200).json(kakashi["comments"]);
-            });
-      
+    for(var i =0;i<result.comments.length;i++){
+        let answer = await getComments(result.comments[i]);
+        kakashi["comments"].push({main:result.comments[i].value,sub:answer});
+    }
+    return res.status(200).json(kakashi["comments"]);
 })
-
+let getComments=  (item)=>{
+    return new Promise(async function(resolve, reject){
+        console.log("waiting for comments");
+        let com = await COMMENT.findById(item).populate('subreviews')
+        console.log("found Comment ");
+        let subComments = []
+        subComments["answers"]=[];
+         com.subreviews.forEach(item=>{
+            subComments["answers"].push({sub:item.value});
+        })
+        console.log("Returning Resolve");
+        console.log(subComments["answers"]);
+        resolve(subComments["answers"]);
+      });
+   
+}
 router.post('/post/subComment/:commentId', (req, res) => {
     let comment = new COMMENT(req.body);
     comment.save().then(result=>{
