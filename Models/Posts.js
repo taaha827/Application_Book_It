@@ -11,7 +11,13 @@ const postSchema = mongoose.Schema({
     dateTime:{
         type:Date,
         default:Date.now
-    }
+    },
+    likes:{
+        type:Number
+    },
+    comments:[{
+        value:String,
+    }]
 });
 
 module.exports = mongoose.model("Posts",postSchema);

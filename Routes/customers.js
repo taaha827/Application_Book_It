@@ -2,7 +2,9 @@ const express = require("express");
 const router = express.Router();
 const Customer = require('../Models/Customers');
 const mongoose = require('mongoose');
-
+const STORES = require('../Models/Stores');
+const POSTS = require('../Models/Posts');
+const APPOIENTMENTS = require('../Models/Appointments');
 router.post('/create',(req,res)=>{
     if(!req.body){
         res.status(400).send({ message: 'All Required fields Not Entered' });
@@ -91,4 +93,128 @@ router.get('/getCustomerId/:email',(req,res)=>{
         else{return res.status(200).send({ownerId:user[0]._id});}
     })
 });
+
+
+
+// Stores for Customer 
+router.get('/getStores/all',(req,res)=>{
+    STORES.find().select({name:1,description:1,contact:1,starttime:1,closetime:1,images:1,category:1})
+    .then(result=>{
+        if(!result){
+            return res.status(404).send({message:"Stores Not Found"});
+        }
+        else{
+            return res.status(200).send(result);
+        }
+    })
+    .catch(err=>{
+        console.log(err);
+        return res.status(503).send({message:"Could NOt Process Request"});
+    });
+});  
+
+// For Post 
+// first image
+// total like 
+// total commments 
+// name 
+// description 
+
+router.get('/getStore/:storeId',async (req,res)=>{
+    let result = {};
+    let posts = await POSTS.find({store:req.params.storeId});
+    let store =await STORES.findById(req.params.storeId).populate('owner');
+    result['store'] = store;
+    console.log(store);
+    result['posts']=[];
+    posts.forEach(item=>{
+        result['posts'].push({
+            image:item.image[0],
+            comments:item.comments.length,
+            likes:item.likes,  
+            title:item.title,
+            description:item.description           
+        });
+    });
+    return res.status(200).send(result);
+});
+
+router.get('/appointment/getAll/:customerId',(req,res)=>{
+    APPOIENTMENTS.find({customer:req.params.customerId}).populate('store')
+    .then(result=>{
+        if(!result){
+            return res.status(404).send({message:"No Appointments Found"});
+        }
+        else{
+            return res.status(200).send(result);
+        }
+    })
+    .catch(err=>{
+        console.log(err);
+    })
+});
+
+
+router.post('/appointment/:storeId',async(req,res)=>{
+    let a = new Date(req.body.startTime);
+    console.log("Hours from request " + a.getHours());
+    let storeTiming = await STORES.findById(req.params.storeId).select({startTime:1,closeTime:1});
+    let startTime = calculateTime(storeTiming.startTime);
+    let close = calculateTime(storeTiming.closeTime);
+    if(a.getHours()<startTime || a.getHours()> close ){
+        return res.status(301).send({message:"Store is not operational at this time"});
+    }
+    let StartTime = await APPOIENTMENTS.find({store:req.params.storeId}).select({startTime:1});
+    StartTime.forEach(item=>{
+        if(Date.parse(item.starttime)=== Date.parse(req.body.startTime)){
+            return res.status(300).send({message:"Appointment Already Exists at this time "});
+        }
+    });
+    let newappointment = new APPOIENTMENTS(req.body);
+    newAppointment.save().then(result=>{
+        res.status(200).send({AppointmentId:result._id,message:"Appointment Created Successfully"});
+        return;
+    })
+    .catch(err => {
+        res.status(500).send({message:"Could Not Add New Appointment, Try Again"});
+        return;
+    });
+
+});
+
+let calculateTime = (time)=>{
+    console.log("I am here " + time.toLowerCase());
+    if(time.toLowerCase().includes('am')){
+        console.log('Found Something');
+        time = time.split('am')[0];
+        return parseInt(time);
+    }
+    else if(time.toLowerCase().includes('pm')){
+        console.log('Found Something');
+        time = time.split('pm')[0];
+        return parseInt(time)+12;
+    }
+}
+
+
+
+
+
+
+
+
+// Appointments for Customer 
+
+
+
+
+
+
+
+
+
+
+
+
+
 module.exports = router;
