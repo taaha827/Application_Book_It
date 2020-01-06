@@ -47,7 +47,7 @@ router.post('/giveReview',(req,res)=>{
 
 router.get('/getReview/:context/:ID',(req,res)=>{
     if(req.params.context==="owner"){
-        AppointmentReview.find({owner:req.params.ID,from:"owner"}).populate("Owners").populate("customer").populate("store").populate("appointment").then(result=>{
+        AppointmentReview.find({owner:req.params.ID,from:"owner"}).populate("owner").populate("customer").populate("store").populate("appointment").then(result=>{
             if(!result){
                 return res.status(404).send({message:"No Review Found"});
             }
