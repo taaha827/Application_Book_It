@@ -47,7 +47,7 @@ router.post('/giveReview',(req,res)=>{
 
 router.get('/getReview/:context/:ID',(req,res)=>{
     if(req.params.context==="owner"){
-        AppointmentReview.find({owner:req.params.ID,from:"owner"}).populate("_owner").populate("_customer").populate("_store").populate("_appointment").then(result=>{
+        AppointmentReview.find({owner:req.params.ID,from:"owner"}).populate("Owners").populate("customer").populate("store").populate("appointment").then(result=>{
             if(!result){
                 return res.status(404).send({message:"No Review Found"});
             }
@@ -61,7 +61,7 @@ router.get('/getReview/:context/:ID',(req,res)=>{
         })
     }
     else if(req.params.context==="customer"){
-        AppointmentReview.find({customer:req.params.ID,from:"customer"}).populate("_owner").populate("_customer").populate("_store").populate("_appointment").then(result=>{
+        AppointmentReview.find({customer:req.params.ID,from:"customer"}).populate("owner").populate("customer").populate("store").populate("appointment").then(result=>{
             if(!result){
                 return res.status(404).send({message:"No Review Found"});
             }
