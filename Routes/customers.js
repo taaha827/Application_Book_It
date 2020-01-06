@@ -95,6 +95,15 @@ router.get('/getCustomerId/:email', (req, res) => {
     })
 });
 
+router.get('/getCustomer/:email', (req, res) => {
+    Customer.find({ email: req.params.email }).then(user => {
+        console.log(user[0]._id);
+        if (!user) {
+            return res.status(404).send({ message: "User Not found" });
+        }
+        else { return res.status(200).send({ ownerId: user[0] }); }
+    })
+});
 
 
 // Stores for Customer 
@@ -192,6 +201,7 @@ router.get('/appointments/:storeId', (req, res) => {
             res.status(503);
         })
 })
+
 
 router.post('/appointment/:storeId', async (req, res) => {
     let a = new Date(req.body.startTime);

@@ -2,6 +2,9 @@ const express = require("express");
 const router = express.Router();
 const appointment = require('../Models/Appointments');
 const mongoose = require('mongoose');
+const AppointmentReview = require('../Models/OwnerReviews');
+const owner = require('../Models/Owners');
+const customer = require('../Models/Customers');
 
 /*customer
 owner
@@ -29,6 +32,63 @@ router.post('/create',(req,res)=>{
     }
 });
 
+
+router.post('/giveReview',(req,res)=>{
+    const object = new AppointmentReview(req,body);
+    object.save().then(result=>{
+        res.status(200).send({ReviewID:result._id,message:"Review Given Successfully"});
+        return;
+    })
+    .catch(err => {
+        res.status(500).send({message:"Could Not Add New Appointment, Try Again"});
+        return;
+    });
+});
+
+router.get('/getReview/:context/:ID',(req,res)=>{
+    if(req.params.context==="owner"){
+        AppointmentReview.find({owner:req.params.ID,from:"owner"}).populate("_owner").populate("_customer").populate("_store").populate("_appointment").then(result=>{
+            if(!result){
+                return res.status(404).send({message:"No Review Found"});
+            }
+            else{
+                return res.status(200).send(result);
+            }           
+        })
+        .catch(err=>{
+            console.log(err);
+            return res.status(505).send({message:"Could  Not Process Request"});
+        })
+    }
+    else if(req.params.context==="customer"){
+        AppointmentReview.find({customer:req.params.ID,from:"customer"}).populate("_owner").populate("_customer").populate("_store").populate("_appointment").then(result=>{
+            if(!result){
+                return res.status(404).send({message:"No Review Found"});
+            }
+            else{
+                return res.status(200).send(result);
+            }           
+        })
+        .catch(err=>{
+            console.log(err);
+            return res.status(505).send({message:"Could  Not Process Request"});
+        })
+        
+    }
+});
+router.delete('/deleteReview/:AppointmentReviewId',(req,res)=>{
+    AppointmentReview.findByIdAndRemove(req.params.appointmentReviewId).then(result=>{
+        if(!result){
+            return res.status(404).send({message:"Appointment Not Found"});
+        }
+        else{
+            return res.status(200).send({"AppointmentReviewId":result._id,"message":"AppointmentReview Deleted Successfully"});
+        }
+    })
+    .catch(err=>{
+    res.status(500).send({message:"Server Could Not Process Request Try Again"});
+    });
+});
 
 
 router.delete('/delete/:AppointmentId/:customerId',(req,res)=>{

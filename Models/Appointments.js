@@ -23,12 +23,12 @@ const appointmentSchema = mongoose.Schema({
         required:true
     },
     startTime:{
-        type:Date,
-        required:true
+        type:String,
+        required:false
     },
     endTime:{
-        type:Date,
-        required:true
+        type:String,
+        required:false
     },
     package:{
         type:mongoose.Schema.Types.ObjectId,
