@@ -34,7 +34,7 @@ router.post('/create',(req,res)=>{
 
 
 router.post('/giveReview',(req,res)=>{
-    const object = new AppointmentReview(req,body);
+    const object = new AppointmentReview(req.body);
     object.save().then(result=>{
         res.status(200).send({ReviewID:result._id,message:"Review Given Successfully"});
         return;
