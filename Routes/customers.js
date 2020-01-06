@@ -95,7 +95,7 @@ router.get('/getCustomerId/:email', (req, res) => {
     })
 });
 
-router.get('/getCustomer/:email', (req, res) => {
+router.get('/getCustomerObject/:email', (req, res) => {
     Customer.find({ email: req.params.email }).then(user => {
         console.log(user[0]._id);
         if (!user) {
