@@ -22,6 +22,9 @@ const appointmentSchema = mongoose.Schema({
         default: Date.now,
         required:true
     },
+    meetingDate:{
+        type:Date
+    },
     startTime:{
         type:String,
         required:false
