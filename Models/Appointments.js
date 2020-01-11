@@ -36,7 +36,7 @@ const appointmentSchema = mongoose.Schema({
         price:Number
     },
     status:{
-        enum:['pending','approved','cancelled','completed','reviewed'],
+        type:String,
         }
 });
 
