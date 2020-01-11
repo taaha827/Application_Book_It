@@ -26,6 +26,7 @@ router.post('/create',(req,res)=>{
             return;
         })
         .catch(err => {
+            console.log(err)
             res.status(500).send({message:"Could Not Add New Appointment, Try Again"});
             return;
         });
