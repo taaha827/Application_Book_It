@@ -171,5 +171,25 @@ router.put('/update/:appointmentId',(req,res)=>{
     }
 });
 
+router.put('/update/:appointmentId/:status',(req,res)=>{
+    if(!req.body.content){
+        return res.status(400).send({message:"Cannot Update Store with no Reference"});
+    }
+    else{
+        appointment.findByIdAndUpdate(req.params.appointmentId,{
+            status:req.params.status
+        })
+        .then(result =>{
+            if(!result){
+                return res.status(404).send({message:"Appointment Not found to update"});
+            }else{
+                return res.status(200).send({AppointmentUpdated:result,message:"Appointment Updated Successfully"});
+            }
+        })
+        .catch(err=>{
+            return res.status(500).send({message:"Could Not Process Request"});
+        })
+    }
+});
 
 module.exports = router;
