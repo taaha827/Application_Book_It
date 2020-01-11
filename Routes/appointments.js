@@ -45,10 +45,16 @@ router.post('/giveReview',(req,res)=>{
         return;
     });
 });
-
-router.get('/getReview/:context/:ID',(req,res)=>{
+//Single Review 
+//endpoint store populated customer populated appointment 
+//populated customer
+router.get('/getSingleReview/:context/:ID',(req,res)=>{
     if(req.params.context==="owner"){
-        AppointmentReview.find({owner:req.params.ID,from:"owner"}).populate("owner").populate("customer").populate("store").populate("appointment").then(result=>{
+        AppointmentReview.findById(req.params.ID)
+        .populate("customer")
+        .populate("store")
+        .populate("appointment")
+        .then(result=>{
             if(!result){
                 return res.status(404).send({message:"No Review Found"});
             }
@@ -62,7 +68,60 @@ router.get('/getReview/:context/:ID',(req,res)=>{
         })
     }
     else if(req.params.context==="customer"){
-        AppointmentReview.find({customer:req.params.ID,from:"customer"}).populate("owner").populate("customer").populate("store").populate("appointment").then(result=>{
+        AppointmentReview.findById(req.params.ID,
+)
+            .populate("owner")
+            .populate("store")
+            .populate("appointment")
+            .then(result=>{
+            if(!result){
+                
+                return res.status(404).send({message:"No Review Found"});
+            }
+            else{
+                console.log("In here");
+                return res.status(200).send(result);
+            }           
+        })
+        .catch(err=>{
+            console.log(err);
+            return res.status(505).send({message:"Could  Not Process Request"});
+        })
+        
+    }
+});
+
+router.get('/getReview/:context/:ID',(req,res)=>{
+    if(req.params.context==="owner"){
+        AppointmentReview.find({owner:req.params.ID,from:"owner"},{
+        "date":1,
+        "numberOfStars":1,
+        "comment":1,
+        })
+        .populate("customer","name")
+        .populate("store","name")
+        .then(result=>{
+            if(!result){
+                return res.status(404).send({message:"No Review Found"});
+            }
+            else{
+                return res.status(200).send(result);
+            }           
+        })
+        .catch(err=>{
+            console.log(err);
+            return res.status(505).send({message:"Could  Not Process Request"});
+        })
+    }
+    else if(req.params.context==="customer"){
+        AppointmentReview.find({customer:req.params.ID,from:"customer"},{
+            "date":1,
+            "numberOfStars":1,
+            "comment":1
+            })
+            .populate("owner",{"_id":0,"firstName":1})
+            .populate("store","name")
+            .then(result=>{
             if(!result){
                 return res.status(404).send({message:"No Review Found"});
             }

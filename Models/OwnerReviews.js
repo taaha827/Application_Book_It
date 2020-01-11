@@ -24,6 +24,11 @@ const reviewSchema = mongoose.Schema({
         required:true
     },   
 
+    date:{
+        type: Date,
+        default: Date.now,
+        required:true
+    },
     customer:{
         type:mongoose.Schema.Types.ObjectId,
         ref: "Customers",
