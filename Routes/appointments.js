@@ -201,12 +201,12 @@ router.delete('/delete/:AppointmentId/:customerId',(req,res)=>{
     });
 });
 
-router.get('/getAll/:ownerId',(req,res)=>{
+router.get('/getAll/:ownerId/:storeId',(req,res)=>{
     const ownerId = req.params.ownerId;
     if(!ownerId){
         return res.status(404).send({message:"Owner Id can not be null"});
     }else{
-        appointment.find({owner:ownerId}).populate("store").populate("customer").then(result =>{
+        appointment.find({owner:ownerId,store:req.params.storeId}).populate("store").populate("customer").then(result =>{
             return res.status(200).send(result);
         })
         .catch(err=>{
