@@ -50,7 +50,7 @@ router.post('/giveReview',(req,res)=>{
 //populated customer
 router.get('/getSingleReview/:context/:ID',(req,res)=>{
     if(req.params.context==="owner"){
-        AppointmentReview.findById(req.params.ID)
+        AppointmentReview.find({"appointment":req.params.ID})
         .populate("customer")
         .populate("store")
         .populate("appointment")
@@ -68,8 +68,7 @@ router.get('/getSingleReview/:context/:ID',(req,res)=>{
         })
     }
     else if(req.params.context==="customer"){
-        AppointmentReview.findById(req.params.ID,
-)
+        AppointmentReview.find({"appointment":req.params.ID})
             .populate("owner")
             .populate("store")
             .populate("appointment")
@@ -90,6 +89,34 @@ router.get('/getSingleReview/:context/:ID',(req,res)=>{
         
     }
 });
+router.get('/getReview/:storeId',(req,res)=>{
+    AppointmentReview.find({"store":req.params.storeId,from:"customer"},{
+        "date":1,
+        "numberOfStars":1,
+        "comment":1,
+        "appointment":1
+        })
+        .populate("customer",{"_id":0,"name":1})
+        .populate("store","name")
+        .then(result=>{
+            if(!result){
+                return res.status(404).send({message:"No Review Found"});
+            }
+            else{
+                return res.status(200).send(result);
+            }           
+        })
+        .catch(err=>{
+            console.log(err);
+            return res.status(505).send({message:"Could  Not Process Request"});
+        })
+    
+        .catch(err=>{
+            console.log(err);
+            return res.status(505).send({message:"Could  Not Process Request"});
+        });
+});
+
 
 router.get('/getReview/:context/:ID',(req,res)=>{
     if(req.params.context==="owner"){
@@ -231,10 +258,7 @@ router.put('/update/:appointmentId',(req,res)=>{
 });
 
 router.put('/update/:appointmentId/:status',(req,res)=>{
-    if(!req.body.content){
-        return res.status(400).send({message:"Cannot Update Store with no Reference"});
-    }
-    else{
+    
         appointment.findByIdAndUpdate(req.params.appointmentId,{
             status:req.params.status
         })
@@ -248,7 +272,7 @@ router.put('/update/:appointmentId/:status',(req,res)=>{
         .catch(err=>{
             return res.status(500).send({message:"Could Not Process Request"});
         })
-    }
+    
 });
 
 module.exports = router;
