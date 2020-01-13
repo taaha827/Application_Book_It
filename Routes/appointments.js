@@ -163,6 +163,8 @@ router.get('/getReview/:context/:ID',(req,res)=>{
         
     }
 });
+
+
 router.delete('/deleteReview/:AppointmentReviewId',(req,res)=>{
     AppointmentReview.findByIdAndRemove(req.params.appointmentReviewId).then(result=>{
         if(!result){
@@ -201,13 +203,97 @@ router.delete('/delete/:AppointmentId/:customerId',(req,res)=>{
     });
 });
 
+
+let getAppointmentReview = (context,ID)=>{
+    return new Promise(async function (resolve, reject) {
+    if(context==="customer"){
+        let app = await AppointmentReview
+        .find({customer:ID,from:"customer"},
+        {"_id":0,appointment:1})
+               let result =[]
+                app.forEach(element => {
+                    result.push(element.appointment);
+                });
+                resolve(result);
+        
+    }
+    else{
+       let app = await AppointmentReview.find({owner:ID,from:"owner"},{
+        "_id":0,        
+        "appointment":1
+            })
+            let result =[]
+            app.forEach(element => {
+                result.push(element.appointment);
+            });
+            //console.log(app)
+            resolve(result);
+    }
+
+    });
+}
+
 router.get('/getAll/:ownerId/:storeId',(req,res)=>{
     const ownerId = req.params.ownerId;
     if(!ownerId){
         return res.status(404).send({message:"Owner Id can not be null"});
     }else{
-        appointment.find({owner:ownerId,store:req.params.storeId}).populate("store").populate("customer").then(result =>{
-            return res.status(200).send(result);
+        appointment.find({owner:ownerId,store:req.params.storeId})
+        .populate("store")
+        .populate("customer")
+        .then(async result =>{
+            let answers = [];
+            let reviews = await getAppointmentReview("owner",ownerId);
+            for (var i = 0 ;i<result.length;i++){
+                if(reviews.includes(result[i]._id)){
+                    let a = result[i].toObject();
+                    a.hasReview = true;
+                    answers.push(a);
+
+                }
+                else{
+                    let a = result[i].toObject();
+                    a.hasReview = false;
+                    answers.push(a);
+                }
+
+            }
+            return res.status(200).send(answers);
+        })
+        .catch(err=>{
+            console.log(err);
+            return res.status(500).send({message:"Could Not Process Request"});
+        })
+    }
+});
+
+
+router.get('/getAll/:customerId',(req,res)=>{
+    const customerId = req.params.customerId;
+    if(!customerId){
+        return res.status(404).send({message:"Customer Id can not be null"});
+    }else{
+        appointment.find({customer:customerId})
+        .populate("store")
+        .populate("customer")
+        .then(result =>async result =>{
+            let answers = [];
+            let reviews = await getAppointmentReview("customer",customerId);
+            for (var i = 0 ;i<result.length;i++){
+                if(reviews.includes(result[i]._id)){
+                    let a = result[i].toObject();
+                    a.hasReview = true;
+                    answers.push(a);
+
+                }
+                else{
+                    let a = result[i].toObject();
+                    a.hasReview = false;
+                    answers.push(a);
+                }
+
+            }
+            return res.status(200).send(answers);
         })
         .catch(err=>{
             return res.status(500).send({message:"Could Not Process Request"});
@@ -226,6 +312,7 @@ router.get('/getAppointment/:appointmentId',(req,res)=>{
             if(!result){
                 return res.status(400).send({message:"Review Not Found!"});
             }else{
+
                 return res.status(200).send(result);
             }
         })
