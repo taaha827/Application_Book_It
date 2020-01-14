@@ -129,7 +129,7 @@ router.get('/owner/getReview/:ownerId/:storeId',(req,res)=>{
         "appointment":1
         })
         .populate("owner",{"_id":0,"firstName":1})
-        .populate("store","name")
+        .populate("store",{"name":1})
         .then(result=>{
             if(!result){
                 return res.status(404).send({message:"No Review Found"});
@@ -182,10 +182,11 @@ router.get('/getReview/:context/:ID',(req,res)=>{
         AppointmentReview.find({customer:req.params.ID,from:"customer"},{
             "date":1,
             "numberOfStars":1,
-            "comment":1
+            "comment":1,
+            "appointment":1
             })
             .populate("owner",{"_id":0,"firstName":1})
-            .populate("store","name")
+            .populate("store",{"name":1})
             .then(result=>{
             if(!result){
                 return res.status(404).send({message:"No Review Found"});
