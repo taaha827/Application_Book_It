@@ -360,6 +360,36 @@ router.get('/getAll/:customerId',(req,res)=>{
     }
 });
 
+router.get('/store/getAll/:storeId',(req,res)=>{
+    const storeId = req.params.storeId;
+    if(!storeId){
+        return res.status(404).send({message:"Customer Id can not be null"});
+    }else{
+        appointment.find({store:storeId},{
+        "meetingDate":1,
+        "startTime":1,
+        "endTime":1,
+        "status":1
+    })
+        .then(async result =>{
+            let answers =[]
+            for (var i = 0 ;i<result.length;i++){
+                if(result[i].status==="completed" ||result[i].status==="rejected" ||result[i].status==="cancelled"  ){
+                    continue;
+                }
+                else{
+                    answers.push(result[i])
+                }
+            }
+            return res.status(200).send(answers);
+        })
+        .catch(err=>{
+            return res.status(500).send({message:"Could Not Process Request"});
+        })
+    }
+});
+
+
 
 router.get('/getAppointment/:appointmentId',(req,res)=>{
     const appointmentId = req.params.appointmentId;
