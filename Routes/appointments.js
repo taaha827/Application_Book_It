@@ -120,7 +120,9 @@ router.get('/getReview/:storeId',(req,res)=>{
 
 router.get('/getReview/:context/:ID',(req,res)=>{
     if(req.params.context==="owner"){
-        AppointmentReview.find({owner:req.params.ID,from:"owner"},{
+        AppointmentReview.find({owner:req.params.ID,from:"owner"},
+        {
+        "appointment":1,
         "date":1,
         "numberOfStars":1,
         "comment":1,
@@ -245,19 +247,29 @@ router.get('/getAll/:ownerId/:storeId',(req,res)=>{
             let answers = [];
             let reviews = await getAppointmentReview("owner",ownerId);
             for (var i = 0 ;i<result.length;i++){
-                if(reviews.includes(result[i]._id)){
-                    let a = result[i].toObject();
-                    a.hasReview = true;
-                    answers.push(a);
-
-                }
-                else{
+                let foundReview = false;
+                if(result[i].status==="completed"){
+                reviews.forEach(element => {
+                    console.log("Comparing "+ element +" with "+ result[i]._id)
+                    if(element.toString() === result[i]._id.toString()){
+                        console.log("Found A Maych")
+                        let a = result[i].toObject();
+                        a.hasReview = true;
+                        answers.push(a);
+                        foundReview = true;
+                    }
+                });
+                if(foundReview){
+                    continue;
+                }else{
                     let a = result[i].toObject();
                     a.hasReview = false;
                     answers.push(a);
                 }
-
+            }else{
+                answers.push(result[i])
             }
+        }
             return res.status(200).send(answers);
         })
         .catch(err=>{
@@ -276,23 +288,33 @@ router.get('/getAll/:customerId',(req,res)=>{
         appointment.find({customer:customerId})
         .populate("store")
         .populate("customer")
-        .then(result =>async result =>{
+        .then(async result =>{
             let answers = [];
             let reviews = await getAppointmentReview("customer",customerId);
             for (var i = 0 ;i<result.length;i++){
-                if(reviews.includes(result[i]._id)){
-                    let a = result[i].toObject();
-                    a.hasReview = true;
-                    answers.push(a);
-
-                }
-                else{
+                let foundReview = false;
+                if(result[i].status==="completed"){
+                reviews.forEach(element => {
+                    console.log("Comparing "+ element +" with "+ result[i]._id)
+                    if(element.toString() === result[i]._id.toString()){
+                        console.log("Found A Maych")
+                        let a = result[i].toObject();
+                        a.hasReview = true;
+                        answers.push(a);
+                        foundReview = true;
+                    }
+                });
+                if(foundReview){
+                    continue;
+                }else{
                     let a = result[i].toObject();
                     a.hasReview = false;
                     answers.push(a);
                 }
-
+            }else{
+                answers.push(result[i])
             }
+        }
             return res.status(200).send(answers);
         })
         .catch(err=>{
