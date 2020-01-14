@@ -118,6 +118,42 @@ router.get('/getReview/:storeId',(req,res)=>{
 });
 
 
+
+
+
+router.get('/owner/getReview/:ownerId/:storeId',(req,res)=>{
+    AppointmentReview.find({"store":req.params.storeId,from:"owner",owner:req.params.ownerId},{
+        "date":1,
+        "numberOfStars":1,
+        "comment":1,
+        "appointment":1
+        })
+        .populate("owner",{"_id":0,"firstName":1})
+        .populate("store","name")
+        .then(result=>{
+            if(!result){
+                return res.status(404).send({message:"No Review Found"});
+            }
+            else{
+                return res.status(200).send(result);
+            }           
+        })
+        .catch(err=>{
+            console.log(err);
+            return res.status(505).send({message:"Could  Not Process Request"});
+        })
+    
+        .catch(err=>{
+            console.log(err);
+            return res.status(505).send({message:"Could  Not Process Request"});
+        });
+});
+
+
+
+
+
+
 router.get('/getReview/:context/:ID',(req,res)=>{
     if(req.params.context==="owner"){
         AppointmentReview.find({owner:req.params.ID,from:"owner"},
@@ -297,7 +333,7 @@ router.get('/getAll/:customerId',(req,res)=>{
                 reviews.forEach(element => {
                     console.log("Comparing "+ element +" with "+ result[i]._id)
                     if(element.toString() === result[i]._id.toString()){
-                        console.log("Found A Maych")
+                        console.log("Found A Match")
                         let a = result[i].toObject();
                         a.hasReview = true;
                         answers.push(a);
