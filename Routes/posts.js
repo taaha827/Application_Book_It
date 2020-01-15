@@ -148,6 +148,83 @@ router.put('/update/:postId', async (req, res) => {
     }
 });
 
+router.post('/like/:postId',(req,res)=>{
+    const postId = req.params.postId;
+    if (!postId) {
+        return res.status(404).send({ message: "Post  Not Found" });
+    }
+    else {
+        Post.findOne({_id :req.params.postId})
+        .then(post=>{
+            if(!post.likes){
+                let likes = 1
+                Post.findOneAndUpdate({_id :req.params.postId},{$set:{likes:likes}},{new:true})
+                .then(post=>{
+                    return res.status(200).send({id:req.params.postId,likes:post.likes})
+                })
+                .catch(err=>{
+                    console.log(err)
+                    return res.status(500).send({ message: "Could Not Process Request" });
+                })
+            }
+            else{
+                let likes = Number(post.likes)
+                likes++
+                Post.findOneAndUpdate({_id :req.params.postId},{$set:{likes:likes}},{new:true})
+                .then(post=>{
+                    return res.status(200).send({id:req.params.postId,likes:post.likes})
+                })
+                .catch(err=>{
+                    console.log(err)
+                    return res.status(500).send({ message: "Could Not Process Request" });
+                })
+            }
+        })
+        .catch(err => {
+            console.log(err)
+            return res.status(500).send({ message: "Could Not Process Request" });
+            })
+    }
+});
+
+router.post('/dislike/:postId',(req,res)=>{
+    const postId = req.params.postId;
+    if (!postId) {
+        return res.status(404).send({ message: "Post  Not Found" });
+    }
+    else {
+        Post.findOne({_id :req.params.postId})
+        .then(post=>{
+            if(!post.likes){
+                let likes = 0
+                Post.findOneAndUpdate({_id :req.params.postId},{$set:{likes:likes}},{new:true})
+                .then(post=>{
+                    return res.status(200).send({id:req.params.postId,likes:post.likes})
+                })
+                .catch(err=>{
+                    console.log(err)
+                    return res.status(500).send({ message: "Could Not Process Request" });
+                })
+            }
+            else{
+                let likes = Number(post.likes)
+                likes--
+                Post.findOneAndUpdate({_id :req.params.postId},{$set:{likes:likes}},{new:true})
+                .then(post=>{
+                    return res.status(200).send({id:req.params.postId,likes:post.likes})
+                })
+                .catch(err=>{
+                    console.log(err)
+                    return res.status(500).send({ message: "Could Not Process Request" });
+                })
+            }
+        })
+        .catch(err => {
+            console.log(err)
+            return res.status(500).send({ message: "Could Not Process Request" });
+            })
+    }
+});
 
 let getImagestoRemove = (postId, updatedImages) => {
     return new Promise(function (resolve, reject) {
