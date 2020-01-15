@@ -296,6 +296,38 @@ router.post('/post/comment/:postId', (req, res) => {
         return res.status(504).send({message:"Not possible"});
     })
 });
+router.delete('/post/subComment/:subcommentId/:commentId', (req, res) => {
+    try{
+    COMMENT.remove({_id:req.params.subcommentId})
+    COMMENT.findOneAndUpdate({_id:req.params.commentId},
+        {$pull:{subreviews:req.params.subcommentId}})
+    .then(result1=>{
+        return res.status(200).send({id:result1._id});
+    }).catch(err=>{
+        console.log(err);
+    })
+    }
+    catch(err){
+        return res.status(500).send({message:"Couldn't Process Request"});
+    }
+});
+
+router.delete('/post/comment/:commentId', (req, res) => {
+    try{
+        COMMENT.remove({_id:req.params.commentId})
+        POSTS.update({comments:req.params.commentId},
+            {$pull:{comments:req.params.commentId}})
+            .then(result1=>{
+                return res.status(200).send({id:result1._id});
+            }).catch(err=>{
+                console.log(err);
+            })
+        }
+    catch(err){
+        return res.status(500).send("Could not process request")
+    }
+});
+
 module.exports = router;
 
 
