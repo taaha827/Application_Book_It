@@ -28,7 +28,7 @@ router.post('/create', (req, res) => {
 
 router.delete('/delete/:customerId', (req, res) => {
     const customerId = req.params.customerId;
-    Customer.findByIdAndRemove(customerId).then(result => {
+    CUSTOMERS.findByIdAndRemove(customerId).then(result => {
         if (!result) {
             res.status(400).send({ message: "Customer Not Found" });
             return;
@@ -49,7 +49,7 @@ router.get('/getCustomer/:customerId', (req, res) => {
         return res.status(404).send({ message: "Customer  Not Found" });
     }
     else {
-        Customer.findOne({ _id: customerId }).then(result => {
+        CUSTOMERS.findOne({ _id: customerId }).then(result => {
             if (!result) {
                 return res.status(400).send({ message: "Customer Not Found!" });
             } else {
@@ -68,7 +68,7 @@ router.put('/update/:customerId', (req, res) => {
         return res.status(400).send({ message: "Cannot Update Customer with no Reference" });
     }
     else {
-        Customer.findByIdAndUpdate(req.params.customerId, {
+        CUSTOMERS.findByIdAndUpdate(req.params.customerId, {
             status: req.body
         }, { new: true })
             .then(result => {
@@ -86,7 +86,7 @@ router.put('/update/:customerId', (req, res) => {
 
 router.get('/getCustomerId/:email', (req, res) => {
     console.log(req.params.email);
-    Customer.find({ email: req.params.email }).then(user => {
+    CUSTOMERS.find({ email: req.params.email }).then(user => {
         console.log(user[0]._id);
         if (!user) {
             return res.status(404).send({ message: "User Not found" });
@@ -96,7 +96,7 @@ router.get('/getCustomerId/:email', (req, res) => {
 });
 
 router.get('/getCustomerObject/:email', (req, res) => {
-    Customer.find({ email: req.params.email }).then(user => {
+    CUSTOMERS.find({ email: req.params.email }).then(user => {
         console.log(user[0]._id);
         if (!user) {
             return res.status(404).send({ message: "User Not found" });

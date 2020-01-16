@@ -123,7 +123,7 @@ router.get('/getPost/:postId/:customerId', (req, res) => {
                     console.log("Got new Comments")
                     middle.comments= com
                     console.log(middle.newComments)
-                    if(result.likes && result.likes.includes(req.params.commentId)){
+                    if(result.likes && result.likes.includes(req.params.customerId)){
                             console.log("In has Liked")
                             middle.hasLiked= true
                         }   
