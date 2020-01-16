@@ -105,7 +105,9 @@ router.get('/getCustomerObject/:email', (req, res) => {
     })
 });
 
-
+let dummy = ()=>{
+    console.log("hahah")
+}
 // Stores for Customer 
 router.get('/getStores/all', (req, res) => {
     STORES.find().select({ name: 1, description: 1, contact: 1, starttime: 1, closetime: 1, images: 1, category: 1 })
