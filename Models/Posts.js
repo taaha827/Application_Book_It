@@ -12,9 +12,10 @@ const postSchema = mongoose.Schema({
         type:Date,
         default:Date.now
     },
-    likes:{
-        type:Number
-    },
+    likes:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Customers"
+    }],
     comments:[{
             type:mongoose.Schema.Types.ObjectId,
             ref:"Comments"

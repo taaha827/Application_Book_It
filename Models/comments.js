@@ -10,7 +10,13 @@ const commentSchema = mongoose.Schema({
     subreviews:[{
             type:mongoose.Schema.Types.ObjectId,
             ref:"Comments"
-    }]
+    }],
+    CommentBy:
+        {
+            type:mongoose.Schema.Types.ObjectId,
+            ref:"Customers",
+            required:true
+        }
 });
 
 module.exports = mongoose.model("Comments",commentSchema);

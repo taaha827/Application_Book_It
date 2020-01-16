@@ -4,6 +4,7 @@ const Post = require('../Models/Posts');
 const mongoose = require('mongoose');
 const Owner = require('../Models/Owners');
 var aws = require('aws-sdk');
+const CUSTOMERS = require('../Models/Customers');
 var BUCKET = 'asifbucketclass';
 aws.config.loadFromPath('./config.json');
 var s3 = new aws.S3();
@@ -68,7 +69,7 @@ router.delete('/delete/:PostId/:ownerId', async (req, res) => {
         });
 });
 
-router.get('/getAll/:storeId', (req, res) => {
+router.get('/getAll/:storeId/:customerId', (req, res) => {
 
     const storeId = req.params.storeId;
 
@@ -76,35 +77,111 @@ router.get('/getAll/:storeId', (req, res) => {
         return res.status(404).send({ message: "Store Id can not be null" });
     } else {
         Post.find({ store: storeId }).then(result => {
-            return res.status(200).send(result);
+            results=[]
+            result.forEach(element=>{
+                let middle = element.toObject();
+                middle.totalLikes = element.likes.length
+                middle.totalComments = element.comments.length
+                if(element.likes){
+                    console.log(req.params.customerId)
+        if(element.likes.includes(req.params.customerId)){
+    middle.hasLiked= true
+                                        }
+                }
+                if(element.comments){
+                    delete middle['comments']
+                }
+                delete middle['likes']
+                results.push(middle)
+            })
+            return res.status(200).send(results);
         })
             .catch(err => {
+                console.log(err)
                 return res.status(500).send({ message: "Could Not Process Request" });
+
             })
     }
 });
 
 
-router.get('/getPost/:postId', (req, res) => {
+router.get('/getPost/:postId/:customerId', (req, res) => {
     const postId = req.params.postId;
     if (!postId) {
         return res.status(404).send({ message: "Post  Not Found" });
     }
     else {
-        Post.findOne({ _id: postId }).then(result => {
+        Post.findOne({ _id: postId }).populate("comments",{value:1,Date:1,CommentBy:1})
+        .then(result => {
             if (!result) {
                 return res.status(400).send({ message: "Post Not Found!" });
             } else {
-                return res.status(200).send(result);
-            }
-        })
+                index= 0
+                middle = result.toObject()
+                getComments(result.comments)
+                .then(com=>{
+                    console.log("Got new Comments")
+                    middle.comments= com
+                    console.log(middle.newComments)
+                    if(result.likes && result.likes.includes(req.params.commentId)){
+                            console.log("In has Liked")
+                            middle.hasLiked= true
+                        }   
+                        delete middle.likes
+                        middle.totalLikes = result.likes.length
+                        console.log("Return result")
+                        return res.status(200).send(middle);
+                })
+                .catch(err=>{
+                    console.log(err)
+                    return res.status(505)
+                })
+                }
+            })
             .catch(err => {
+                console.log(err)
                 return res.status(500).send({ message: "Could Not Process Request" });
             })
     }
 });
 
-
+let getComments = (comments)=>{
+    return new Promise(async function(resolve, reject){
+        newComments = []
+        for (let index = 0; index < comments.length; index++) {
+            const element = comments[index];
+            if(element.CommentBy){
+                let customer =await getCustomer(element.CommentBy)
+                console.log("Got customer")
+                console.log(customer)
+                newComments.push({
+                    _id:element._id,
+                    commentBy:customer.name
+                })
+            }
+        }
+            resolve(newComments)     
+})
+}
+let getCustomer = (storeId) =>{
+    return new Promise(function(resolve, reject){
+        CUSTOMERS.findOne({_id:storeId},{firstName:1,lastName:1,imageURL:1})
+        .then(Customer=>{
+            if(!Customer){
+                return null;
+            }
+            else{
+                if(!Customer){
+                    resolve({name:Customer.firstName+" "+Customer.lastName});
+                }
+                else{
+                    resolve({name:Customer.firstName+" "+Customer.lastName,image:Customer.imageURL});
+                    
+                }
+            }
+        }).catch(err=>{console.log(err);});     
+      });
+}
 router.put('/update/:postId', async (req, res) => {
     if (!req.body) {
         return res.status(400).send({ message: "Cannot Update Post with no Reference" });
@@ -148,84 +225,81 @@ router.put('/update/:postId', async (req, res) => {
     }
 });
 
-router.post('/like/:postId',(req,res)=>{
+router.post('/like/:postId/:customerId',(req,res)=>{
     const postId = req.params.postId;
     if (!postId) {
         return res.status(404).send({ message: "Post  Not Found" });
     }
     else {
-        Post.findOne({_id :req.params.postId})
-        .then(post=>{
-            if(!post.likes){
-                let likes = 1
-                Post.findOneAndUpdate({_id :req.params.postId},{$set:{likes:likes}},{new:true})
-                .then(post=>{
-                    return res.status(200).send({id:req.params.postId,likes:post.likes})
-                })
-                .catch(err=>{
-                    console.log(err)
-                    return res.status(500).send({ message: "Could Not Process Request" });
-                })
+        Post.find({_id :req.params.postId})
+        .then(result=>{
+            if(!result){
+                return res.status(501)
             }
             else{
-                let likes = Number(post.likes)
-                likes++
-                Post.findOneAndUpdate({_id :req.params.postId},{$set:{likes:likes}},{new:true})
-                .then(post=>{
-                    return res.status(200).send({id:req.params.postId,likes:post.likes})
-                })
-                .catch(err=>{
-                    console.log(err)
-                    return res.status(500).send({ message: "Could Not Process Request" });
-                })
+                if(result[0].likes){
+                    if(result[0].likes.includes(req.params.customerId)){
+                        return res.status(201).send({message:"already Liked"})
+                    }
+                }
+                else{
+                    Post.findOneAndUpdate({_id :req.params.postId},
+                        {$push:{likes:req.params.customerId}})
+                        .then(result=>{
+                            return res.status(200).send(result)
+                        })     
+                        .catch(err=>{
+                            console.log(err)
+                            return res.status(503)
+                        })
+                }
             }
         })
-        .catch(err => {
+        .catch(err=>{
             console.log(err)
-            return res.status(500).send({ message: "Could Not Process Request" });
-            })
-    }
-});
+            return res.status(505)
+        })
+        return 
+            }
+        })
 
-router.post('/dislike/:postId',(req,res)=>{
+router.post('/dislike/:postId/:customerId',(req,res)=>{
     const postId = req.params.postId;
     if (!postId) {
         return res.status(404).send({ message: "Post  Not Found" });
     }
     else {
-        Post.findOne({_id :req.params.postId})
-        .then(post=>{
-            if(!post.likes){
-                let likes = 0
-                Post.findOneAndUpdate({_id :req.params.postId},{$set:{likes:likes}},{new:true})
-                .then(post=>{
-                    return res.status(200).send({id:req.params.postId,likes:post.likes})
-                })
-                .catch(err=>{
-                    console.log(err)
-                    return res.status(500).send({ message: "Could Not Process Request" });
-                })
+        Post.find({_id :req.params.postId})
+        .then(result=>{
+            if(!result){
+                return res.status(501)
             }
             else{
-                let likes = Number(post.likes)
-                likes--
-                Post.findOneAndUpdate({_id :req.params.postId},{$set:{likes:likes}},{new:true})
-                .then(post=>{
-                    return res.status(200).send({id:req.params.postId,likes:post.likes})
-                })
-                .catch(err=>{
-                    console.log(err)
-                    return res.status(500).send({ message: "Could Not Process Request" });
-                })
+                if(result[0].likes){
+                    if(result[0].likes.includes(req.params.customerId)){
+                        Post.findOneAndUpdate({_id :req.params.postId},
+                            {$pull:{likes:req.params.customerId}})
+                            .then(result=>{
+                                return res.status(200).send(result)
+                            })     
+                            .catch(err=>{
+                                console.log(err)
+                                return res.status(503)
+                            })
+                        }else{
+                            return res.status(201).send({messsage:"ALready Disliked"})
+                        }
+                }
             }
         })
-        .catch(err => {
+        .catch(err=>{
             console.log(err)
-            return res.status(500).send({ message: "Could Not Process Request" });
-            })
-    }
-});
-
+            return res.status(505)
+        })
+        return 
+            }
+        })
+    
 let getImagestoRemove = (postId, updatedImages) => {
     return new Promise(function (resolve, reject) {
         Post.findById(postId).then(result => {

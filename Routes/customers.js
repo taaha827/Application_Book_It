@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const Customer = require('../Models/Customers');
+const CUSTOMERS = require('../Models/Customers');
 const mongoose = require('mongoose');
 const STORES = require('../Models/Stores');
 const POSTS = require('../Models/Posts');
@@ -242,30 +242,96 @@ let calculateTime = (time) => {
 
 router.get('/post/getcomments/:postId', async (req, res) => {
     kakashi ={}
+    console.log("In Get Comments")
     kakashi["comments"]=[];
     let result = await POSTS.findById(req.params.postId).select({comments:1});
-    for(var i =0;i<result.comments.length;i++){
-        let answer = await getComments(result.comments[i]);
-        kakashi["comments"].push({main:result.comments[i].value,sub:answer});
-    }
-    return res.status(200).json(kakashi["comments"]);
+    let a = await getComments(result)
+
+    return res.status(200).send(a);
 })
-let getComments=  (item)=>{
+
+let getComments = (comments)=>{
     return new Promise(async function(resolve, reject){
-        console.log("waiting for comments");
-        let com = await COMMENT.findById(item).populate('subreviews')
-        console.log("found Comment ");
-        let subComments = []
-        subComments["answers"]=[];
-         com.subreviews.forEach(item=>{
-            subComments["answers"].push({sub:item.value});
-        })
-        console.log("Returning Resolve");
-        console.log(subComments["answers"]);
-        resolve(subComments["answers"]);
-      });
-   
+        console.log("Calling C")
+        const finalComments = []
+        newComments = await getC(comments)
+        for (let index = 0; index < newComments.length; index++) {
+            let temp={}
+            const element = newComments[index];
+            let cName = await getCustomer(element.CommentBy)
+            temp.commentBy = cName.name
+            temp.value = element.value
+            temp.date = element.Date
+            temp.subComments =[]
+            for (let index = 0; index < element.subreviews.length; index++) {
+                const element1 = element.subreviews[index];
+                console.log(element1)
+                let subComment =await getC({comments:[element1]})
+                console.log(subComment)
+                if(element.CommentBy){
+                let getSubCN = await getCustomer(element.CommentBy)
+                temp.subComments.push({
+                    CommentBy: getSubCN.name,
+                    value:subComment[0].value,
+                    Date: subComment.Date
+                })
+            }
+            }
+            finalComments.push(temp)
+            
+        }
+            resolve(finalComments)     
+})
 }
+
+let getCustomer = (storeId) =>{
+    return new Promise(function(resolve, reject){
+        CUSTOMERS.findOne({_id:storeId},{firstName:1,lastName:1,imageURL:1})
+        .then(Customer=>{
+            if(!Customer){
+                return null;
+            }
+            else{
+                if(!Customer){
+                    resolve({name:Customer.firstName+" "+Customer.lastName});
+                }
+                else{
+                    resolve({name:Customer.firstName+" "+Customer.lastName,image:Customer.imageURL});
+                    
+                }
+            }
+        }).catch(err=>{console.log(err);});     
+      });
+}
+let getC = (references)=>{
+    
+    return new Promise(function(resolve, reject){
+            COMMENT.find({_id: { $in:references.comments}})
+            .then(result=>{
+                console.log("Resolving")
+                resolve (result);
+            })
+      });
+
+}
+
+// let getComments=  (item)=>{
+//     return new Promise(async function(resolve, reject){
+//         console.log("waiting for comments");
+//         let com = await COMMENT.findById(item).populate('subreviews')
+//         console.log("found Comment ");
+//         console.log(com)
+//         let subComments = []
+//         subComments["answers"]=[];
+//          com.subreviews.forEach(item=>{
+//             subComments["answers"].push({sub:item.value});
+//         })
+//         console.log("Returning Resolve");
+//         console.log(subComments["answers"]);
+//         resolve(subComments["answers"]);
+//       });
+   
+// }
 router.post('/post/subComment/:commentId', (req, res) => {
     let comment = new COMMENT(req.body);
     comment.save().then(result=>{
