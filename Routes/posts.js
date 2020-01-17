@@ -230,22 +230,52 @@ router.post('/like/:postId/:customerId',(req,res)=>{
     if (!postId) {
         return res.status(404).send({ message: "Post  Not Found" });
     }
+    
     else {
+        try{
+            console.log("In here")
         Post.find({_id :req.params.postId})
         .then(result=>{
             if(!result){
+                console.log("In here 1")
                 return res.status(501)
             }
             else{
+                console.log("In here 2")
+                
                 if(result[0].likes){
+                    console.log("In here 3")
+                    console.log(result[0])
                     if(result[0].likes.includes(req.params.customerId)){
+                        console.log("In here 4")
+
                         return res.status(201).send({message:"already Liked"})
                     }
+                    else{
+                        console.log("In here 5")
+    
+                        Post.findOneAndUpdate({_id :req.params.postId},
+                            {$push:{likes:req.params.customerId}})
+                            .then(result=>{
+                                console.log("In here 6")
+    
+                                return res.status(200).send(result)
+                            })     
+                            .catch(err=>{
+                                console.log(err)
+                                return res.status(503)
+                            })
+    
                 }
+            }
                 else{
+                    console.log("In here 5")
+
                     Post.findOneAndUpdate({_id :req.params.postId},
                         {$push:{likes:req.params.customerId}})
                         .then(result=>{
+                            console.log("In here 6")
+
                             return res.status(200).send(result)
                         })     
                         .catch(err=>{
@@ -261,6 +291,11 @@ router.post('/like/:postId/:customerId',(req,res)=>{
         })
         return 
             }
+            catch(err){
+                return res.status(509).send({messsage:"Error REcieved"})
+            }
+    
+        }
         })
 
 router.post('/dislike/:postId/:customerId',(req,res)=>{
