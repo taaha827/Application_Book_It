@@ -248,7 +248,9 @@ router.get('/post/getcomments/:postId', async (req, res) => {
     kakashi["comments"]=[];
     let result = await POSTS.findById(req.params.postId).select({comments:1});
     let a = await getComments(result)
-
+    if(a === null){
+        return res.status(404).send({message:"Could not find Post"})
+    }
     return res.status(200).send(a);
 })
 
@@ -256,7 +258,12 @@ let getComments = (comments)=>{
     return new Promise(async function(resolve, reject){
         console.log("Calling C")
         const finalComments = []
+        console.log(comments)
+
         newComments = await getC(comments)
+        if(newComments === null){
+            resolve(null)
+        }
         for (let index = 0; index < newComments.length; index++) {
             let temp={}
             const element = newComments[index];
@@ -308,6 +315,9 @@ let getCustomer = (storeId) =>{
 let getC = (references)=>{
     
     return new Promise(function(resolve, reject){
+            if(!references||!references.comments){
+                resolve(null)
+            }
             COMMENT.find({_id: { $in:references.comments}})
             .then(result=>{
                 console.log("Resolving")
