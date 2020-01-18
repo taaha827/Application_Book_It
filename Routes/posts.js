@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const Owner = require('../Models/Owners');
 var aws = require('aws-sdk');
 const CUSTOMERS = require('../Models/Customers');
-var BUCKET = 'asifbucketclass';
+var BUCKET = 'bookerapp';
 aws.config.loadFromPath('./config.json');
 var s3 = new aws.S3();
 
@@ -43,7 +43,7 @@ router.delete('/delete/:PostId/:ownerId', async (req, res) => {
                 objects.push({Key:item});
             });
             var params = {
-                Bucket: 'asifbucketclass',
+                Bucket: 'bookerapp',
                 Delete: { // required
                     Objects: objects,
                 },
@@ -194,7 +194,7 @@ router.put('/update/:postId', async (req, res) => {
                 objects.push({Key:imagesToDelete[i]});
             }
             var params = {
-                Bucket: 'asifbucketclass',
+                Bucket: 'bookerapp',
                 Delete: { // required
                     Objects: objects,
                 },
