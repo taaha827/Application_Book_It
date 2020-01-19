@@ -277,11 +277,10 @@ let getComments = (comments)=>{
             temp.subComments =[]
             for (let index = 0; index < element.subreviews.length; index++) {
                 const element1 = element.subreviews[index];
-                console.log(element1)
                 let subComment =await getC({comments:[element1]})
-                console.log(subComment)
                 if(element.CommentBy){
-                let getSubCN = await getCustomer(element.CommentBy)
+                
+                let getSubCN = await getCustomer(subComment[0].CommentBy)
                 temp.subComments.push({
                     CommentById: getSubCN._id,
                     CommentBy: getSubCN.name,
@@ -299,12 +298,17 @@ let getComments = (comments)=>{
 
 let getCustomer = (storeId) =>{
     return new Promise(function(resolve, reject){
+        console.log("In here 1 ")
+        console.log("CustomerId:"+storeId)
         CUSTOMERS.findOne({_id:storeId},{_id:1,firstName:1,lastName:1,imageURL:1})
         .then(Customer=>{
             if(!Customer){
+                console.log(Customer)
+                console.log("In not Customer")
                 return null;
             }
             else{
+                console.log(Customer)
                 if(!Customer){
                     resolve({_id: Customer._id,name:Customer.firstName+" "+Customer.lastName});
                 }
