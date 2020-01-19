@@ -269,6 +269,8 @@ let getComments = (comments)=>{
             let temp={}
             const element = newComments[index];
             let cName = await getCustomer(element.CommentBy)
+            temp.CommentId = element._id
+            temp._id = cName._id
             temp.commentBy = cName.name
             temp.value = element.value
             temp.date = element.Date
@@ -281,6 +283,7 @@ let getComments = (comments)=>{
                 if(element.CommentBy){
                 let getSubCN = await getCustomer(element.CommentBy)
                 temp.subComments.push({
+                    CommentById: getSubCN._id,
                     CommentBy: getSubCN.name,
                     value:subComment[0].value,
                     Date: subComment.Date
@@ -296,17 +299,17 @@ let getComments = (comments)=>{
 
 let getCustomer = (storeId) =>{
     return new Promise(function(resolve, reject){
-        CUSTOMERS.findOne({_id:storeId},{firstName:1,lastName:1,imageURL:1})
+        CUSTOMERS.findOne({_id:storeId},{_id:1,firstName:1,lastName:1,imageURL:1})
         .then(Customer=>{
             if(!Customer){
                 return null;
             }
             else{
                 if(!Customer){
-                    resolve({name:Customer.firstName+" "+Customer.lastName});
+                    resolve({_id: Customer._id,name:Customer.firstName+" "+Customer.lastName});
                 }
                 else{
-                    resolve({name:Customer.firstName+" "+Customer.lastName,image:Customer.imageURL});
+                    resolve({_id: Customer._id,name:Customer.firstName+" "+Customer.lastName,image:Customer.imageURL});
                     
                 }
             }
