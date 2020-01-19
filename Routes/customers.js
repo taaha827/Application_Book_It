@@ -12,7 +12,7 @@ router.post('/create', (req, res) => {
         return;
     }
     else {
-        const newCustomer = new Customer(req.body);
+        const newCustomer = new CUSTOMERS   (req.body);
         newCustomer.save().then(result => {
             res.status(200).send(result._id);
             return;
@@ -53,6 +53,7 @@ router.get('/getCustomer/:customerId', (req, res) => {
             if (!result) {
                 return res.status(400).send({ message: "Customer Not Found!" });
             } else {
+                console.log("Found Customer: "+result)
                 return res.status(200).send(result);
             }
         })
@@ -97,8 +98,8 @@ router.get('/getCustomerId/:email', (req, res) => {
 
 router.get('/getCustomerObject/:email', (req, res) => {
     CUSTOMERS.find({ email: req.params.email }).then(user => {
-        console.log(user[0]._id);
-        if (!user) {
+        console.log({ email: req.params.email });
+        if (user.length===0) {
             return res.status(404).send({ message: "User Not found" });
         }
         else { return res.status(200).send({ ownerId: user[0] }); }

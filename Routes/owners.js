@@ -104,8 +104,8 @@ router.get('/getOwnerId/:email',(req,res)=>{
     console.log("In getOwnerId");
     console.log(req.params.email);
     Owner.find({email:req.params.email}).then(user=>{
-        console.log(user[0]._id);
-        if(!user){
+        console.log(user.length)
+        if(user.length===0){
             return res.status(404).send({message:"User Not found"});
         }
         else{return res.status(200).send({ownerId:user[0]._id});}
