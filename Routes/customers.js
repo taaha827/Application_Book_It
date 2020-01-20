@@ -304,7 +304,7 @@ router.get('/getReview/store/:StoreID',(req,res)=>{
         "numberOfStars":1,
         "comment":1,
         })
-        .populate("customer","name")
+        .populate("customer",{_id:1,firstName:1,lastName:1})
         .populate("store","name")
         .then(result=>{
             if(!result){
