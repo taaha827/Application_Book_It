@@ -6,6 +6,7 @@ const STORES = require('../Models/Stores');
 const POSTS = require('../Models/Posts');
 const APPOIENTMENTS = require('../Models/Appointments');
 const COMMENT = require('../Models/comments');
+const AppointmentReview = require('../Models/OwnerReviews')
 router.post('/create', (req, res) => {
     if (!req.body) {
         res.status(400).send({ message: 'All Required fields Not Entered' });
@@ -279,7 +280,6 @@ let getComments = (comments)=>{
                 const element1 = element.subreviews[index];
                 let subComment =await getC({comments:[element1]})
                 if(element.CommentBy){
-                
                 let getSubCN = await getCustomer(subComment[0].CommentBy)
                 temp.subComments.push({
                     CommentById: getSubCN._id,
@@ -295,6 +295,32 @@ let getComments = (comments)=>{
             resolve(finalComments)     
 })
 }
+
+router.get('/getReview/store/:StoreID',(req,res)=>{
+        AppointmentReview.find({store:req.params.StoreID,from:"customer"},
+        {
+        "appointment":1,
+        "date":1,
+        "numberOfStars":1,
+        "comment":1,
+        })
+        .populate("customer","name")
+        .populate("store","name")
+        .then(result=>{
+            if(!result){
+                return res.status(404).send({message:"No Review Found"});
+            }
+            else{
+                return res.status(200).send(result);
+            }           
+        })
+        .catch(err=>{
+            console.log(err);
+            return res.status(505).send({message:"Could  Not Process Request"});
+        })
+    
+        
+    });
 
 let getCustomer = (storeId) =>{
     return new Promise(function(resolve, reject){
