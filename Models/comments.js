@@ -15,7 +15,13 @@ const commentSchema = mongoose.Schema({
         {
             type:mongoose.Schema.Types.ObjectId,
             ref:"Customers",
-            required:true
+            required:false
+        },
+        ownerComment:
+        {
+            type:mongoose.Schema.Types.ObjectId,
+            ref:"Owners",
+            required:false
         }
 });
 

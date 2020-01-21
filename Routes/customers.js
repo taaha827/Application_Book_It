@@ -3,6 +3,7 @@ const router = express.Router();
 const CUSTOMERS = require('../Models/Customers');
 const mongoose = require('mongoose');
 const STORES = require('../Models/Stores');
+const OWNERS = require('../Models/Owners')
 const POSTS = require('../Models/Posts');
 const APPOIENTMENTS = require('../Models/Appointments');
 const COMMENT = require('../Models/comments');
@@ -126,6 +127,23 @@ router.get('/getStores/all', (req, res) => {
             return res.status(503).send({ message: "Could NOt Process Request" });
         });
 });
+
+router.get('/getStores/all/:name', (req, res) => {
+    STORES.find({ "name": { "$regex": req.params.name, "$options": "i" } }).select({ name: 1, description: 1, contact: 1, starttime: 1, closetime: 1, images: 1, category: 1 })
+        .then(result => {
+            if (!result) {
+                return res.status(404).send({ message: "Stores Not Found" });
+            }
+            else {
+                return res.status(200).send(result);
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            return res.status(503).send({ message: "Could NOt Process Request" });
+        });
+});
+
 
 // For Post 
 // first image
@@ -269,6 +287,7 @@ let getComments = (comments)=>{
         for (let index = 0; index < newComments.length; index++) {
             let temp={}
             const element = newComments[index];
+            if(element.CommentBy!==null){
             let cName = await getCustomer(element.CommentBy)
             temp.CommentId = element._id
             temp._id = cName._id
@@ -288,9 +307,53 @@ let getComments = (comments)=>{
                     Date: subComment.Date
                 })
             }
+            else{
+                let getSubCN = await getOwner(subComment[0].ownerComment)
+                temp.subComments.push({
+                    CommentById: getSubCN._id,
+                    CommentBy: getSubCN.name,
+                    value:subComment[0].value,
+                    Date: subComment.Date
+                })
+
+            }
             }
             finalComments.push(temp)
-            
+            }
+            else{
+                let oName = await getOwner(element.ownerComment)
+                temp.CommentId = element._id
+                temp._id = oName._id
+                temp.commentBy = oName.name
+                temp.value = element.value
+                temp.date = element.Date
+                temp.subComments =[]
+                for (let index = 0; index < element.subreviews.length; index++) {
+                    const element1 = element.subreviews[index];
+                    let subComment =await getC({comments:[element1]})
+                    if(element.CommentBy){
+                    let getSubCN = await getCustomer(subComment[0].CommentBy)
+                    temp.subComments.push({
+                        CommentById: getSubCN._id,
+                        CommentBy: getSubCN.name,
+                        value:subComment[0].value,
+                        Date: subComment.Date
+                    })
+                }
+                    else{
+                        let getSubCN = await getOwner(subComment[0].ownerComment)
+                        temp.subComments.push({
+                            CommentById: getSubCN._id,
+                            CommentBy: getSubCN.name,
+                            value:subComment[0].value,
+                            Date: subComment.Date
+                        })
+    
+                    }
+                }
+                finalComments.push(temp)
+                 
+            }
         }
             resolve(finalComments)     
 })
@@ -324,7 +387,7 @@ router.get('/getReview/store/:StoreID',(req,res)=>{
 
 let getCustomer = (storeId) =>{
     return new Promise(function(resolve, reject){
-        console.log("In here 1 ")
+       
         console.log("CustomerId:"+storeId)
         CUSTOMERS.findOne({_id:storeId},{_id:1,firstName:1,lastName:1,imageURL:1})
         .then(Customer=>{
@@ -346,6 +409,31 @@ let getCustomer = (storeId) =>{
         }).catch(err=>{console.log(err);});     
       });
 }
+
+let getOwner = (ownerId) =>{
+    return new Promise(function(resolve, reject){
+       
+        
+        OWNERS.findOne({_id:ownerId},{_id:1,firstName:1,lastName:1,imageURL:1})
+        .then(Owner=>{
+            if(!Owner){
+                console.log(Owner)
+                console.log("In not Owner")
+                return null;
+            }
+            else{
+                console.log(Owner)
+                if(!Owner){
+                    resolve({_id: Owner._id,name:Owner.firstName+" "+Owner.lastName});
+                }
+                else{
+                    resolve({_id: Owner._id,name:Owner.firstName+" "+Owner.lastName,image:Owner.imageURL});
+                    
+                }
+            }
+        }).catch(err=>{console.log(err);});     
+      });
+}
 let getC = (references)=>{
     
     return new Promise(function(resolve, reject){
@@ -361,23 +449,6 @@ let getC = (references)=>{
 
 }
 
-// let getComments=  (item)=>{
-//     return new Promise(async function(resolve, reject){
-//         console.log("waiting for comments");
-//         let com = await COMMENT.findById(item).populate('subreviews')
-//         console.log("found Comment ");
-//         console.log(com)
-//         let subComments = []
-//         subComments["answers"]=[];
-//          com.subreviews.forEach(item=>{
-//             subComments["answers"].push({sub:item.value});
-//         })
-//         console.log("Returning Resolve");
-//         console.log(subComments["answers"]);
-//         resolve(subComments["answers"]);
-//       });
-   
-// }
 router.post('/post/subComment/:commentId', (req, res) => {
     let comment = new COMMENT(req.body);
     comment.save().then(result=>{

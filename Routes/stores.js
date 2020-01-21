@@ -193,6 +193,7 @@ router.put('/update/:storeId',async (req,res)=>{
             category:req.body.category,
             subcategory:req.body.subcategory,
             images:req.body.images,
+            location: req.body.location,
             package:req.body.package,
             startTime: req.body.startTime,
             closeTime: req.body.endTime
