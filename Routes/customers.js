@@ -305,7 +305,7 @@ let getComments = (comments)=>{
             for (let index = 0; index < element.subreviews.length; index++) {
                 const element1 = element.subreviews[index];
                 let subComment =await getC({comments:[element1]})
-                if(element.CommentBy){
+                if(subComment[0].CommentBy){
                 let getSubCN = await getCustomer(subComment[0].CommentBy)
                 if(getSubCN ==null){
                     getSubCN={}
@@ -355,7 +355,8 @@ let getComments = (comments)=>{
                 for (let index = 0; index < element.subreviews.length; index++) {
                     const element1 = element.subreviews[index];
                     let subComment =await getC({comments:[element1]})
-                    if(element.CommentBy){
+                    console.log('Sub COMMENTS==================>',subComment[0])
+                    if(subComment[0].CommentBy){
                     let getSubCN = await getCustomer(subComment[0].CommentBy)
                     if(getSubCN ==null){
                         getSubCN = {}
