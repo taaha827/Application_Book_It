@@ -290,6 +290,9 @@ let getComments = (comments)=>{
             console.log('Element==========>',element)
             if(element.CommentBy){
             let cName = await getCustomer(element.CommentBy)
+            if(cName ==null){
+                continue
+            }
             temp.CommentId = element._id
             temp._id = cName._id
             temp.commentBy = cName.name
@@ -301,6 +304,10 @@ let getComments = (comments)=>{
                 let subComment =await getC({comments:[element1]})
                 if(element.CommentBy){
                 let getSubCN = await getCustomer(subComment[0].CommentBy)
+                if(getSubCN ==null){
+                    continue
+                }
+    
                 temp.subComments.push({
                     CommentById: getSubCN._id,
                     CommentBy: getSubCN.name,
@@ -395,7 +402,7 @@ let getCustomer = (storeId) =>{
             if(!Customer){
                 console.log(Customer)
                 console.log("In not Customer")
-                return null;
+                resolve( null);
             }
             else{
                 console.log(Customer)
