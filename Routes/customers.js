@@ -287,7 +287,8 @@ let getComments = (comments)=>{
         for (let index = 0; index < newComments.length; index++) {
             let temp={}
             const element = newComments[index];
-            if(element.CommentBy!==null){
+            console.log('Element==========>',element)
+            if(element.CommentBy){
             let cName = await getCustomer(element.CommentBy)
             temp.CommentId = element._id
             temp._id = cName._id
