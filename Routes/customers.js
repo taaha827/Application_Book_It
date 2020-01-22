@@ -330,6 +330,9 @@ let getComments = (comments)=>{
             }
             else{
                 let oName = await getOwner(element.ownerComment)
+                if(oName ==null){
+                    continue
+                }
                 temp.CommentId = element._id
                 temp._id = oName._id
                 temp.commentBy = oName.name
@@ -341,6 +344,10 @@ let getComments = (comments)=>{
                     let subComment =await getC({comments:[element1]})
                     if(element.CommentBy){
                     let getSubCN = await getCustomer(subComment[0].CommentBy)
+                    if(getSubCN ==null){
+                        continue
+                    }
+    
                     temp.subComments.push({
                         CommentById: getSubCN._id,
                         CommentBy: getSubCN.name,
@@ -350,6 +357,10 @@ let getComments = (comments)=>{
                 }
                     else{
                         let getSubCN = await getOwner(subComment[0].ownerComment)
+                        if(getSubCN ==null){
+                            continue
+                        }
+        
                         temp.subComments.push({
                             CommentById: getSubCN._id,
                             CommentBy: getSubCN.name,
@@ -427,7 +438,7 @@ let getOwner = (ownerId) =>{
             if(!Owner){
                 console.log(Owner)
                 console.log("In not Owner")
-                return null;
+                resolve(null);
             }
             else{
                 console.log(Owner)
