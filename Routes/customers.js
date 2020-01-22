@@ -291,7 +291,10 @@ let getComments = (comments)=>{
             if(element.CommentBy){
             let cName = await getCustomer(element.CommentBy)
             if(cName ==null){
-                continue
+                cName = {}
+                cName._id =0,
+                cName.name="Default User"
+
             }
             temp.CommentId = element._id
             temp._id = cName._id
@@ -305,7 +308,10 @@ let getComments = (comments)=>{
                 if(element.CommentBy){
                 let getSubCN = await getCustomer(subComment[0].CommentBy)
                 if(getSubCN ==null){
-                    continue
+                    getSubCN={}
+                    getSubCN._id =0,
+                    getSubCN.name="Default User"
+
                 }
     
                 temp.subComments.push({
@@ -317,6 +323,11 @@ let getComments = (comments)=>{
             }
             else{
                 let getSubCN = await getOwner(subComment[0].ownerComment)
+                if(getSubCN ==null){
+                    getSubCN = {}
+                    getSubCN._id =0,
+                    getSubCN.name="Default User"
+                }
                 temp.subComments.push({
                     CommentById: getSubCN._id,
                     CommentBy: getSubCN.name,
@@ -331,7 +342,9 @@ let getComments = (comments)=>{
             else{
                 let oName = await getOwner(element.ownerComment)
                 if(oName ==null){
-                    continue
+                    oName = {}
+                    oName._id =0,
+                    oName.name="Default User"
                 }
                 temp.CommentId = element._id
                 temp._id = oName._id
@@ -345,7 +358,9 @@ let getComments = (comments)=>{
                     if(element.CommentBy){
                     let getSubCN = await getCustomer(subComment[0].CommentBy)
                     if(getSubCN ==null){
-                        continue
+                        getSubCN = {}
+                        getSubCN._id =0,
+                        getSubCN.name="Default User"
                     }
     
                     temp.subComments.push({
@@ -358,7 +373,9 @@ let getComments = (comments)=>{
                     else{
                         let getSubCN = await getOwner(subComment[0].ownerComment)
                         if(getSubCN ==null){
-                            continue
+                            getSubCN={}
+                            getSubCN._id =0,
+                            getSubCN.name="Default User"
                         }
         
                         temp.subComments.push({
@@ -411,7 +428,7 @@ let getCustomer = (storeId) =>{
         CUSTOMERS.findOne({_id:storeId},{_id:1,firstName:1,lastName:1,imageURL:1})
         .then(Customer=>{
             if(!Customer){
-                console.log(Customer)
+                console.log(storeId)
                 console.log("In not Customer")
                 resolve( null);
             }
