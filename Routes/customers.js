@@ -256,9 +256,8 @@ router.post('/findStores', async (req,res) =>{
             foundStores.push(storeDistance._id)
         }
     }
-    //( 6371 * acos( cos( radians(37) ) * cos( radians( lat ) ) * cos( radians( lng ) - radians(-122) ) + sin( radians(37) ) * sin( radians( lat ) ) ) )
     STORES.find().where('_id').in(foundStores)
-    .select({ name: 1, description: 1, contact: 1, starttime: 1, closetime: 1, images: 1, category: 1 })
+    .select({ name: 1, description: 1, contact: 1, starttime: 1, closetime: 1, images: 1, category: 1,location:1 })
     .then(result => {
         if (!result) {
             return res.status(404).send({ message: "Stores Not Found" });
