@@ -146,7 +146,9 @@ router.get('/getStores/all/:name', (req, res) => {
 function getRandomArbitrary(min, max) {
     return Math.ceil(Math.random() * (max - min) + min);
   }
-router.get('/getStores/all/:category/:subCategory', (req, res) => {
+router.get('/getStores/all/:category/:subCategory', async (req, res) => {
+
+    count = await STORES.count
     if(req.params.category =='All') {
         // Random Any Stores
         if(req.params.subCategory =='All') {
@@ -207,7 +209,7 @@ router.get('/getStores/all/:category/:subCategory', (req, res) => {
             return res.status(503).send({ message: "Could NOt Process Request" });
         });
         }
-        else{
+        else{console.log("In HERE")
             STORES.find({category:req.params.category ,subcategory:{ "$in" : [req.params.subCategory]}})
             .select({ name: 1, description: 1, contact: 1, starttime: 1, closetime: 1, images: 1, category: 1 })
             .then(result => {
