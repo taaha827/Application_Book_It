@@ -243,6 +243,48 @@ router.get('/getStores/all/:category/:subCategory', async (req, res) => {
         });
 });
 
+router.post('/findStores', async (req,res) =>{
+    let StoresDistance = await STORES.find({}).select({location:1})
+    console.log(StoresDistance)
+    let foundStores = []
+    for (let index = 0; index < StoresDistance.length; index++) {
+        const storeDistance = StoresDistance[index];
+        console.log('Latitude ',storeDistance.location[0].lat,'Longitude',storeDistance.location[0].lng)
+        let distanceFromLocation = measure(req.body.lat,req.body.lng,storeDistance.location[0].lat,storeDistance.location[0].lng)
+        console.log('Distance', distanceFromLocation)
+        if(distanceFromLocation<30){
+            foundStores.push(storeDistance._id)
+        }
+    }
+    //( 6371 * acos( cos( radians(37) ) * cos( radians( lat ) ) * cos( radians( lng ) - radians(-122) ) + sin( radians(37) ) * sin( radians( lat ) ) ) )
+    STORES.find().where('_id').in(foundStores)
+    .select({ name: 1, description: 1, contact: 1, starttime: 1, closetime: 1, images: 1, category: 1 })
+    .then(result => {
+        if (!result) {
+            return res.status(404).send({ message: "Stores Not Found" });
+        }
+        else {
+            return res.status(200).send(result);
+        }
+    })
+    .catch(err => {
+        console.log(err);
+        return res.status(503).send({ message: "Could NOt Process Request" });
+    });
+    
+
+})
+function measure(lat1, lon1, lat2, lon2){  // generally used geo measurement function
+    var R = 6371; // Radius of earth in KM
+    var dLat = lat2 * Math.PI / 180 - lat1 * Math.PI / 180;
+    var dLon = lon2 * Math.PI / 180 - lon1 * Math.PI / 180;
+    var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    var d = R * c;
+    return d ; // meters
+}
 // For Post 
 // first image
 // total like 
