@@ -148,14 +148,10 @@ function getRandomArbitrary(min, max) {
   }
 router.get('/getStores/all/:category/:subCategory', async (req, res) => {
 
-    count = await STORES.count
     if(req.params.category =='All') {
         // Random Any Stores
         if(req.params.subCategory =='All') {
-            let limitrecords=30;
-            var skipRecords = getRandomArbitrary(1, count-limitrecords);
             STORES.find({})
-            .skip(skipRecords)
             .select({ name: 1, description: 1, contact: 1, starttime: 1, closetime: 1, images: 1, category: 1 })
             .then(result => {
                 if (!result) {
@@ -172,10 +168,9 @@ router.get('/getStores/all/:category/:subCategory', async (req, res) => {
         }        
         else{
             let limitrecords=30;
-            var skipRecords = getRandomArbitrary(1, count-limitrecords);
-            STORES.find({subcategory:{ "$in" : [req.params.subCategory]} })
+            console.log('In Here!!!')
+            STORES.find({ "subcategory": { "$regex": req.params.subCategory, "$options": "i" }})
             .select({ name: 1, description: 1, contact: 1, starttime: 1, closetime: 1, images: 1, category: 1 })
-            .skip(skipRecords)
             .then(result => {
                 if (!result) {
                     return res.status(404).send({ message: "Stores Not Found" });
@@ -209,8 +204,9 @@ router.get('/getStores/all/:category/:subCategory', async (req, res) => {
             return res.status(503).send({ message: "Could NOt Process Request" });
         });
         }
-        else{console.log("In HERE")
-            STORES.find({category:req.params.category ,subcategory:{ "$in" : [req.params.subCategory]}})
+        else{
+            console.log("In HERE")
+            STORES.find({category:req.params.category ,subcategory:req.params.subCategory})
             .select({ name: 1, description: 1, contact: 1, starttime: 1, closetime: 1, images: 1, category: 1 })
             .then(result => {
                 if (!result) {
@@ -228,19 +224,6 @@ router.get('/getStores/all/:category/:subCategory', async (req, res) => {
         }
 
     }
-    STORES.find({ "name": { "$regex": req.params.name, "$options": "i" } }).select({ name: 1, description: 1, contact: 1, starttime: 1, closetime: 1, images: 1, category: 1 })
-        .then(result => {
-            if (!result) {
-                return res.status(404).send({ message: "Stores Not Found" });
-            }
-            else {
-                return res.status(200).send(result);
-            }
-        })
-        .catch(err => {
-            console.log(err);
-            return res.status(503).send({ message: "Could NOt Process Request" });
-        });
 });
 
 router.post('/findStores', async (req,res) =>{
