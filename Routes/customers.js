@@ -143,7 +143,103 @@ router.get('/getStores/all/:name', (req, res) => {
             return res.status(503).send({ message: "Could NOt Process Request" });
         });
 });
+function getRandomArbitrary(min, max) {
+    return Math.ceil(Math.random() * (max - min) + min);
+  }
+router.get('/getStores/all/:category/:subCategory', (req, res) => {
+    if(req.params.category =='All') {
+        // Random Any Stores
+        if(req.params.subCategory =='All') {
+            let limitrecords=30;
+            var skipRecords = getRandomArbitrary(1, count-limitrecords);
+            STORES.find({})
+            .skip(skipRecords)
+            .select({ name: 1, description: 1, contact: 1, starttime: 1, closetime: 1, images: 1, category: 1 })
+            .then(result => {
+                if (!result) {
+                    return res.status(404).send({ message: "Stores Not Found" });
+                }
+                else {
+                    return res.status(200).send(result);
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                return res.status(503).send({ message: "Could NOt Process Request" });
+            });
+        }        
+        else{
+            let limitrecords=30;
+            var skipRecords = getRandomArbitrary(1, count-limitrecords);
+            STORES.find({subcategory:{ "$in" : [req.params.subCategory]} })
+            .select({ name: 1, description: 1, contact: 1, starttime: 1, closetime: 1, images: 1, category: 1 })
+            .skip(skipRecords)
+            .then(result => {
+                if (!result) {
+                    return res.status(404).send({ message: "Stores Not Found" });
+                }
+                else {
+                    return res.status(200).send(result);
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                return res.status(503).send({ message: "Could NOt Process Request" });
+            });
+    
+            
+        }
+    }
+    else{
+        if(req.params.subCategory =='All'){
+        STORES.find({category:req.params.category })
+        .select({ name: 1, description: 1, contact: 1, starttime: 1, closetime: 1, images: 1, category: 1 })
+        .then(result => {
+            if (!result) {
+                return res.status(404).send({ message: "Stores Not Found" });
+            }
+            else {
+                return res.status(200).send(result);
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            return res.status(503).send({ message: "Could NOt Process Request" });
+        });
+        }
+        else{
+            STORES.find({category:req.params.category ,subcategory:{ "$in" : [req.params.subCategory]}})
+            .select({ name: 1, description: 1, contact: 1, starttime: 1, closetime: 1, images: 1, category: 1 })
+            .then(result => {
+                if (!result) {
+                    return res.status(404).send({ message: "Stores Not Found" });
+                }
+                else {
+                    return res.status(200).send(result);
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                return res.status(503).send({ message: "Could NOt Process Request" });
+            });
+    
+        }
 
+    }
+    STORES.find({ "name": { "$regex": req.params.name, "$options": "i" } }).select({ name: 1, description: 1, contact: 1, starttime: 1, closetime: 1, images: 1, category: 1 })
+        .then(result => {
+            if (!result) {
+                return res.status(404).send({ message: "Stores Not Found" });
+            }
+            else {
+                return res.status(200).send(result);
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            return res.status(503).send({ message: "Could NOt Process Request" });
+        });
+});
 
 // For Post 
 // first image
