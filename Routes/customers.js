@@ -74,9 +74,7 @@ router.put('/update/:customerId', (req, res) => {
         return res.status(400).send({ message: "Cannot Update Customer with no Reference" });
     }
     else {
-        CUSTOMERS.findByIdAndUpdate(req.params.customerId, {
-            status: req.body
-        }, { new: true })
+        CUSTOMERS.findByIdAndUpdate(req.params.customerId, req.body, { new: true })
             .then(result => {
                 if (!result) {
                     return res.status(404).send({ message: "Custoemr Not found to update" });
@@ -270,12 +268,6 @@ function measure(lat1, lon1, lat2, lon2){  // generally used geo measurement fun
     var d = R * c;
     return d ; // meters
 }
-// For Post 
-// first image
-// total like 
-// total commments 
-// name 
-// description 
 
 router.get('/getStore/:storeId', async (req, res) => {
     let result = {};
