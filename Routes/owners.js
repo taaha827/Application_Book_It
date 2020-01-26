@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Owner = require('../Models/Owners');
 const mongoose = require('mongoose');
-
+const Customer = require('../Models/Customers')
 /*customer
 owner
 store
@@ -20,6 +20,7 @@ router.post('/create',(req,res)=>{
     else{
         const newAppointment = new Owner(req.body);
         newAppointment.save().then(result=>{
+            
             res.status(200).send(result._id);
             return;
         })
@@ -111,6 +112,46 @@ router.get('/getOwnerId/:email',(req,res)=>{
         else{return res.status(200).send({ownerId:user[0]._id});}
     })
 });
+
+
+router.get('/setNotificationToken/:type/:email/:token',(req,res)=>{
+    console.log({email:req.params.token})
+    if(req.params.type ==='owner') {
+        Owner.findOneAndUpdate({email:req.params.email},{notificationToken: req.params.token})
+        .then(result =>{
+            console.log(result)
+            console.log('Added NotificationToken')
+        })
+        .catch(err =>{console.log(err)})
+    }
+    else {
+        Customer.findOneAndUpdate({email:req.params.email},{notificationToken: req.params.token})
+        .then(result =>{
+            console.log(result)
+            console.log('Added NotificationToken')
+        })
+        .catch(err =>{console.log(err)})
+
+    }
+})
+router.get('/removeNotificationToken/:type/:email/',(req,res)=>{
+    if(req.params.type ==='owner') {
+        Owner.findOneAndUpdate({email:req.params.email},{notificationToken:''})
+        .then(result =>{
+            console.log(result)
+            console.log('Removed NotificationToken')
+        })
+        .catch(err =>{console.log(err)})
+    }
+    else {
+        Customer.findOneAndUpdate({email:req.params.email},{notificationToken:''})
+        .then(result =>{
+            console.log('Removed NotificationToken')
+        })
+        .catch(err =>{console.log(err)})
+
+    }
+})
 
 
 module.exports = router;

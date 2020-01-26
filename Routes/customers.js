@@ -1,3 +1,5 @@
+//passport.authenticate('jwt', { session: false }) Add this to every route
+
 const express = require("express");
 const router = express.Router();
 const CUSTOMERS = require('../Models/Customers');
@@ -8,6 +10,7 @@ const POSTS = require('../Models/Posts');
 const APPOIENTMENTS = require('../Models/Appointments');
 const COMMENT = require('../Models/comments');
 const AppointmentReview = require('../Models/OwnerReviews')
+const passport = require('../config/passport')
 router.post('/create', (req, res) => {
     if (!req.body) {
         res.status(400).send({ message: 'All Required fields Not Entered' });
@@ -146,8 +149,7 @@ router.get('/getStores/all/:name', (req, res) => {
 function getRandomArbitrary(min, max) {
     return Math.ceil(Math.random() * (max - min) + min);
   }
-router.get('/getStores/all/:category/:subCategory', async (req, res) => {
-
+router.get('/getStores/all/:category/:subCategory', passport.authenticate('jwt', { session: false }), async (req, res) => {
     if(req.params.category =='All') {
         // Random Any Stores
         if(req.params.subCategory =='All') {
@@ -213,7 +215,7 @@ router.get('/getStores/all/:category/:subCategory', async (req, res) => {
                     return res.status(404).send({ message: "Stores Not Found" });
                 }
                 else {
-                    return res.status(200).send(result);
+                   return res.jsonp(result);
                 }
             })
             .catch(err => {
@@ -226,7 +228,7 @@ router.get('/getStores/all/:category/:subCategory', async (req, res) => {
     }
 });
 
-router.post('/findStores', async (req,res) =>{
+router.post('/findStores', async (req, res) =>{
     let StoresDistance = await STORES.find({}).select({location:1})
     console.log(StoresDistance)
     let foundStores = []

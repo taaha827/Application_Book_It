@@ -5,7 +5,9 @@ const mongoose = require('mongoose');
 const AppointmentReview = require('../Models/OwnerReviews');
 const owner = require('../Models/Owners');
 const customer = require('../Models/Customers');
-
+var FCM = require('fcm-node')
+var serverKey = 'AAAA1c07Ogk:APA91bGBHY1BcODcHD1k-rkZ7V9KEIMBe-eV7mHICL35bx91nzrqJ31t3oUeuX7ZK2JYArQSqGuQBKL89d4ddpC4CYzVCT6skQE1_2qVUkq_QlV09r_rXPLZ0dAlT8-lbadBPjwoBJ7a'
+let fcm = new FCM(serverKey)
 /*customer
 owner
 store
@@ -13,6 +15,11 @@ date
 startTime
 endTime
 status */
+
+// 'type',
+// 'value',
+// 'Customer Name',
+// 'customer Id'
 router.post('/create',(req,res)=>{
     const {customerId,ownerId,storeId,startTime,endTime,status} = req.body;
     if(!req.body){
@@ -20,8 +27,37 @@ router.post('/create',(req,res)=>{
         return;
     }
     else{
+
         const newAppointment = new appointment(req.body);
         newAppointment.save().then(result=>{
+            appointment.findOne({_id:result.id})
+            .populate('owner',{notificationToken:1})
+            .populate('customer',{firstName:1,lastName:1})
+            .then(result => {
+                var message = {
+                    to: result.owner.notificationToken,
+                    notification: {
+                        title: 'Appointment Created',
+                        body: `Appointment Created by ${result.customer.firstName} ${result.customer.lastName} ` 
+                    },
+                    data: {
+                        type: 'appointment',
+                        value: `Appointment Created by ${result.customer.firstName} ${result.customer.lastName} `,
+                        customerName : `${result.customer.firstName} ${result.customer.lastName}`,
+                        customerId: result.customer._id
+                    }
+                }
+                console.log('Message=====>',message)
+                fcm.send(message, function(err, response) {
+                    if(err) {
+                        console.log(err)
+                        console.log('Something went wrong')
+                    }
+                    else{
+                        console.log('Successful ', response)
+                    }
+                })
+            })
             res.status(200).send({AppointmentId:result._id,message:"Appointment Created Successfully"});
             return;
         })
@@ -222,16 +258,47 @@ router.delete('/deleteReview/:AppointmentReviewId',(req,res)=>{
 router.delete('/delete/:AppointmentId/:customerId',(req,res)=>{
     const customerId = req.params.customerId;
     const AppointmentId = req.params.AppointmentId;
-    Customer.findOne({_id:customerId}).then(result=>{
+    customer.findOne({_id:customerId}).then(result=>{
         if(!result){
             res.status(400).send({message:"Customer Not Found"});
             return;
         }else{
+            appointment.findOne({_id:req.params.AppointmentId})
+            .populate('owner',{notificationToken:1})
+            .populate('customer',{firstName:1,lastName:1})
+            .then(result1 => {
+                console.log(result1)
+                var message = {
+                    to: result1.owner.notificationToken,
+                    notification: {
+                        title: 'Appointment Deleted',
+                        body: `Appointment Deleted by ${result1.customer.firstName} ${result1.customer.lastName} ` 
+                    },
+                    data: {
+                        type: 'appointment',
+                        value: `Appointment Deleted by ${result1.customer.firstName} ${result1.customer.lastName} `,
+                        customerName : `${result1.customer.firstName} ${result1.customer.lastName}`,
+                        customerId: result1.customer._id,
+                        appointmentId:result1._id
+                    }
+                }
+                fcm.send(message,function (err, response) {
+                    if(err) {
+                        console.log('Something went wrong')
+                    }
+                    else{
+                        console.log('Successful ', response)
+                    }
+                })
+            })
             appointment.findByIdAndRemove(AppointmentId).then(result=>{
                 if(!result){
                     return res.status(404).send({message:"Appointment Not Found"});
                 }
                 else{
+                                        
+
+        
                     return res.status(200).send({"AppointmentId":result._id,"message":"Appointment Deleted Successfully"});
                 }
             })
@@ -433,6 +500,7 @@ router.put('/update/:appointmentId',(req,res)=>{
     }
 });
 
+//add req.body.changedBy
 router.put('/update/:appointmentId/:status',(req,res)=>{
     
         appointment.findByIdAndUpdate(req.params.appointmentId,{
@@ -442,6 +510,53 @@ router.put('/update/:appointmentId/:status',(req,res)=>{
             if(!result){
                 return res.status(404).send({message:"Appointment Not found to update"});
             }else{
+                let  not 
+                let by 
+                appointment.findOne({_id:result.id})
+                .populate('owner',{notificationToken:1,firstName:1,lastName:1})
+                .populate('customer',{firstName:1,lastName:1})
+                .populate('store',{name:1})
+                .then(result => {
+                    console.log(result.owner)
+                    if(req.body.changedBy ==='customer'){
+                        not = result.owner.notificationToken
+                        by = result.customer.firstName + ' ' + result.customer.lastName
+                    }else{
+                        not = result.customer.notificationToken
+                        by = result.owner.firstName + ' ' + result.owner.lastName
+                    }
+                    var message = {
+                        to: not,
+                        notification: {
+                            title: 'Appointment Status Changed',
+                            body: `Appointment Status change on AppointmentId ${result._id} ` 
+                        },
+                        data: {
+                            type: 'appointment',
+                            value: `Appointment Status change on AppointmentId ${result._id} 
+                            by ${by}
+                            `,
+                            customerName : `${result.customer.firstName} ${result.customer.lastName}`,
+                            customerId: result.customer._id,
+                            appointmentId: result._id,
+                            ownerId: result.owner._id,
+                            changedBy: req.body.changedBy,
+                            storeId: result.store._id,
+                            status: result.status
+                        }
+                    }
+                    if(message.to!==''){
+                    fcm.send(message,function(err, response) {
+                        if(err) {
+                            console.log(err)
+                            console.log('Something went wrong')
+                        }
+                        else{
+                            console.log('Successful ', response)
+                        }
+                    })
+                }
+                })
                 return res.status(200).send({AppointmentUpdated:result,message:"Appointment Updated Successfully"});
             }
         })

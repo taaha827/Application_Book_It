@@ -5,7 +5,7 @@ require('dotenv/config');
 //Initializing The Server
 const app = express();
 const bodyParser = require("body-parser");
-
+const passport = require('./config/passport')
 app.use(express.urlencoded({extended:false}));
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json());

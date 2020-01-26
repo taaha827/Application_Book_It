@@ -1,0 +1,65 @@
+{
+    "db": {
+      "development": {
+        "username": "",
+        "password": "",
+        "host": "192.168.0.81",
+        "port": 27017,
+        "database": "qwanse-consignment-development"
+      },
+      "testing": {
+        "username": "",
+        "password": "",
+        "host": "",
+        "port": 27017,
+        "database": ""
+      },
+      "staging": {
+        "username": "",
+        "password": "",
+        "host": "",
+        "port": 27017,
+        "database": ""
+      },
+      "production": {
+        "username": "",
+        "password": "",
+        "host": "35.164.131.226",
+        "port": 27017,
+        "database": "qwanse-consignment-production"
+      }
+    },
+    "rabbitMQ": {
+      "connection": {
+        "development": "amqp://locopixel:password@192.168.0.81",
+        "staging": "",
+        "production": "amqp://locopixel:password@35.164.131.226"
+      },
+      "exchange": "QwanseExchange",
+      "queue": "consignmentQueue",
+      "binding_keys": [
+        "user",
+        "role",
+        "job",
+        "dispute",
+        "claim",
+        "userSubscription",
+        "cmrCountReset"
+      ]
+    },
+    "FORCE_DB_SYNC": "false",
+    "jwtOptions": {
+      "secretOrKey": "boilerplate",
+      "ignoreExpiration": true,
+      "passReqToCallback": true
+    },
+    "awsConfig": {
+      "accessKeyId": "AKIA6JR6IA6GX47G47EK",
+      "secretAccessKey": "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",
+      "region": ""
+    },
+    "Bucket": "qwanse-documents",
+    "domain": "https://qwanse.locopixel.com",
+    "driverDomain": "https://driver.locopixel.com",
+    "linkPrefix": "/guest/verify/"
+  }
