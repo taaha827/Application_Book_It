@@ -71,8 +71,58 @@ router.post('/create',(req,res)=>{
 
 
 router.post('/giveReview',(req,res)=>{
+
     const object = new AppointmentReview(req.body);
     object.save().then(result=>{
+        AppointmentReview.findOne({_id:result._id})
+        .populate('owner',{firstName:1,lastName:1,notificationToken})
+        .populate('customer',{firstName:1,lastName:1,notificationToken})
+        .populate('store',{name:1})
+        .populate('appointment',{meetingDate:1,package:1})
+        .then(result1 => {
+            let to 
+            if(result1.from === 'owner') {
+                to = result1.customer.notificationToken
+                by = result1.owner.firstName + ' ' + result1.owner.lastName
+            }else{
+                to = result1.owner.notificationToken
+                by = result1.customer.firstName + ' ' + result1.customer.lastName
+            }
+            var message = {
+                to:to,
+                notification: {
+                    title: 'Review Recievedd',
+                    body: `${by} left you a review on an appointment ` 
+                },
+                data: {
+                    type: 'Review',
+                    value: `
+                    A ${result1.numberOfStars} star Review was Given by ${by} on your appointment on ${result1.appointment.meetingDate} at store ${result1.store.name}   
+                     `,
+                    customerName : `${result1.customer.firstName} ${result1.customer.lastName}`,
+                    customerId: result1.customer._id,
+                    ownerName : `${result1.owner.firstName} ${result1.owner.lastName}`,
+                    ownerId: result1.owner._id,
+                    appointmentId: result1.appointment._id,
+                    meetingDate: result1.appointment.meetingDate,
+                    package: result1.appointment.package,
+                    store: result1.store._id
+                }
+            }
+            if(to !== ''){
+                fcm.send(message, function(err, response) {
+                    if(err) {
+                        console.log(err)
+                        console.log('Something went wrong')
+                    }
+                    else{
+                        console.log('Successful ', response)
+                    }
+                })
+    
+            }
+        })
+
         res.status(200).send({ReviewID:result._id,message:"Review Given Successfully"});
         return;
     })

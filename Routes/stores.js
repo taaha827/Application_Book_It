@@ -35,7 +35,7 @@ const fileFilter = (req, file, cb) => {
   });
 
 var aws = require('aws-sdk');
-var BUCKET = 'asifbucketclass';
+var BUCKET = 'bookerapp';
 aws.config.loadFromPath('./config.json');
 var s3 = new aws.S3();
 
@@ -89,7 +89,7 @@ router.delete('/delete/:storeId/:ownerId',async (req,res)=>{
                     });
             console.log(objects);    
             var params = {
-                Bucket: 'asifbucketclass', 
+                Bucket: 'bookerapp', 
                 Delete: { // required
                   Objects:objects,
                 },
@@ -170,7 +170,7 @@ router.put('/update/:storeId',async (req,res)=>{
             objects =[];
             objects.push({Key:storeImage});
             var params = {
-                Bucket: 'asifbucketclass', 
+                Bucket: 'bookerapp', 
                 Delete: { // required
                   Objects:objects,
                 },
@@ -278,7 +278,7 @@ router.delete('/delete/image/',(req,res)=>{
     objects =[];
     objects.push({Key:req.body.imageName});
     var params = {
-        Bucket: 'asifbucketclass', 
+        Bucket: 'bookerapp', 
         Delete: { // required
           Objects:objects,
         },
