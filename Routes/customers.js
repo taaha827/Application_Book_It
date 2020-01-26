@@ -149,7 +149,8 @@ router.get('/getStores/all/:name', (req, res) => {
 function getRandomArbitrary(min, max) {
     return Math.ceil(Math.random() * (max - min) + min);
   }
-router.get('/getStores/all/:category/:subCategory', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  //, passport.authenticate('jwt', { session: false })
+router.get('/getStores/all/:category/:subCategory', async (req, res) => {
     if(req.params.category =='All') {
         // Random Any Stores
         if(req.params.subCategory =='All') {
