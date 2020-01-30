@@ -11,6 +11,11 @@ const APPOIENTMENTS = require('../Models/Appointments');
 const COMMENT = require('../Models/comments');
 const AppointmentReview = require('../Models/OwnerReviews')
 const passport = require('../config/passport')
+const favourites = require('../Models/favourites');
+
+
+
+
 router.post('/create', (req, res) => {
     if (!req.body) {
         res.status(400).send({ message: 'All Required fields Not Entered' });
@@ -128,6 +133,51 @@ router.get('/getStores/all', (req, res) => {
             return res.status(503).send({ message: "Could NOt Process Request" });
         });
 });
+
+router.get('favorites/:customerId', (req,res) =>{
+    favourites.find({customer:req.params.customerId})
+    .populate('store',{ name: 1, description: 1, contact: 1, starttime: 1, closetime: 1, images: 1, category: 1 })
+    .then(result => {
+        if (!result) {
+            return res.status(404).send({ message: "Stores Not Found" });
+        }
+        else {
+            return res.status(200).send(result);
+        }
+    })
+    .catch(err => {
+        console.log(err);
+        return res.status(503).send({ message: "Could NOt Process Request" });
+    });
+
+})
+router.post('addToFavorites/', (req,res) => {
+    let f = new favourites(req.body)
+    f.save().then(result => {
+        res.status(200).send(result._id);
+        return;
+    })
+        .catch(err => {
+            res.status(500).send({ message: "Could Not Add as faviourite, Try Again" });
+            return;
+        });
+
+})
+
+router.put('removeFromFavorite/:storeId/:customerId', (req,res) =>{ 
+    favourites.findOneAndRemove({store:req.params.storeId,customer:req.params.customerId})
+    .then(result => {
+        if(!result) {
+            return res.status(500).send({message: "Could not remove from Favorites"})
+        }
+        else{
+            return res.status(200).send({message:"Removed from Favorites"})
+        }
+    })
+    .catch(err =>{
+        return res.status(505).send({message:'Couldnt process request'})
+    })
+})
 
 router.get('/getStores/all/:name', (req, res) => {
     STORES.find({ "name": { "$regex": req.params.name, "$options": "i" } }).select({ name: 1, description: 1, contact: 1, starttime: 1, closetime: 1, images: 1, category: 1 })
