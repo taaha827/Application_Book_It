@@ -4,7 +4,7 @@ const router = express.Router();
 const Store = require('../Models/Stores');
 const owner = require('../Models/Owners');
 const Posts = require('../Models/Posts');
-
+const faviorites = require('../Models/favourites');
 const multer = require('multer');
 var storeLocation =  'uploads/Store/';
 const storage = multer.diskStorage({
@@ -135,7 +135,7 @@ router.get('/getAll/:ownerId',(req,res)=>{
 });
 
 
-router.get('/getStore/:storeId',(req,res)=>{
+router.get('/getStore/:storeId/:customerId',(req,res)=>{
     const storeID = req.params.storeId;
     console.log(req.params.storeId);
     if(!storeID){
@@ -146,13 +146,33 @@ router.get('/getStore/:storeId',(req,res)=>{
             if(!store){
                 return res.status(400).send({message:"Store Not Found!"});
             }else{
-                return res.status(200).send(store);
+                console.log('Found Store')
+                let result = store.toObject();
+                if(req.params.customerId!='N.A'){
+                faviorites.findOne({store:storeID, customer:req.params.customerId})
+                .then(f =>{
+                    console.log("In here found faviroute", f)
+                    if(!f) {
+                        result.isFaviourite = false
+                    }
+                    else{
+                        result.isFaviourite = true
+                    }
+                    return res.status(200).send(result);
+                })
+            
+                }
+            else{
+            return res.status(200).send(result);
             }
-        })
+            
+        }
+    })
         .catch(err=>{
             return res.status(500).send({message:"Could Not Process Request"});
         })
     }
+    
 });
 
 

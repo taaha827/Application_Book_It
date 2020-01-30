@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const appointmentSchema = mongoose.Schema({
+const favouritesSchema = mongoose.Schema({
     customer:{
         type:mongoose.Schema.Types.ObjectId,
         ref: 'Customers',
@@ -14,4 +14,4 @@ const appointmentSchema = mongoose.Schema({
 });
 
 
-module.exports = mongoose.model("favourites",appointmentSchema);
+module.exports = mongoose.model("favourites",favouritesSchema);

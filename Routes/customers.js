@@ -134,7 +134,7 @@ router.get('/getStores/all', (req, res) => {
         });
 });
 
-router.get('favorites/:customerId', (req,res) =>{
+router.get('/favorites/:customerId', (req,res) =>{
     favourites.find({customer:req.params.customerId})
     .populate('store',{ name: 1, description: 1, contact: 1, starttime: 1, closetime: 1, images: 1, category: 1 })
     .then(result => {
@@ -151,7 +151,7 @@ router.get('favorites/:customerId', (req,res) =>{
     });
 
 })
-router.post('addToFavorites/', (req,res) => {
+router.post('/addToFavorites/', (req,res) => {
     let f = new favourites(req.body)
     f.save().then(result => {
         res.status(200).send(result._id);
@@ -164,7 +164,7 @@ router.post('addToFavorites/', (req,res) => {
 
 })
 
-router.put('removeFromFavorite/:storeId/:customerId', (req,res) =>{ 
+router.put('/removeFromFavorite/:storeId/:customerId', (req,res) =>{ 
     favourites.findOneAndRemove({store:req.params.storeId,customer:req.params.customerId})
     .then(result => {
         if(!result) {
