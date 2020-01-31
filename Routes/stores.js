@@ -142,7 +142,7 @@ router.get('/getStore/:storeId/:customerId',(req,res)=>{
         return res.status(404).send({message:"Store Not Found"});
     }
     else{
-        Store.findOne({_id:storeID}).populate("_owner").then(store=>{
+        Store.findOne({_id:storeID}).populate("owner").then(store=>{
             if(!store){
                 return res.status(400).send({message:"Store Not Found!"});
             }else{
