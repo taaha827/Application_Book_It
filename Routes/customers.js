@@ -84,7 +84,7 @@ router.put('/update/:customerId', (req, res) => {
                 if (!result) {
                     return res.status(404).send({ message: "Custoemr Not found to update" });
                 } else {
-                    userCredential.findOneAndUpdate({email:req.body.email},{ $set: { email: req.body.email }}, {new:true})
+                    userCredential.findOneAndUpdate({email:req.body.email},{ email: req.body.email }, {new:true})
                     .then(ansert => {
                         return res.status(200).send({ UpdatedCustomer: result, message: "Customer Updated Successfully" });
                     }).catch(err=>{
