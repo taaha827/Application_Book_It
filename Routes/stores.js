@@ -273,6 +273,7 @@ router.post('/Image/Remove/:storeId/:image',(req,res)=>{
 });
 
 router.get('/getStoreCount/:id',(req,res)=>{
+    console.log(req.params.id)
     Store.find({owner:req.params.id}).then(stores=>{
         if(stores.length==0){
             return res.status(200).send({count:0,storeId:""});    

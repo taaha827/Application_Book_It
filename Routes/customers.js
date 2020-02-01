@@ -12,7 +12,7 @@ const COMMENT = require('../Models/comments');
 const AppointmentReview = require('../Models/OwnerReviews')
 const passport = require('../config/passport')
 const favourites = require('../Models/favourites');
-
+const userCredential = require('../Models/UserCredential')
 
 
 
@@ -84,7 +84,12 @@ router.put('/update/:customerId', (req, res) => {
                 if (!result) {
                     return res.status(404).send({ message: "Custoemr Not found to update" });
                 } else {
-                    return res.status(200).send({ UpdatedCustomer: result, message: "Customer Updated Successfully" });
+                    userCredential.findOneAndUpdate({email:req.body.email},{ $set: { email: req.body.email }}, {returnNewDocument:true})
+                    .then(ansert => {
+                        return res.status(200).send({ UpdatedCustomer: result, message: "Customer Updated Successfully" });
+                    }).catch(err=>{
+                        return res.status(500).send({ message: "Could Not Process Request" });
+                    })
                 }
             })
             .catch(err => {

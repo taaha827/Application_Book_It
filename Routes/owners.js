@@ -75,7 +75,7 @@ router.get('/getOwner/:OwnerId',(req,res)=>{
     }
 });
 
-
+const userCredential = require('../Models/UserCredential')
 router.put('/update/:ownerid',(req,res)=>{
     if(!req.body.content){
         return res.status(400).send({message:"Cannot Update Owner with no Reference"});
@@ -92,14 +92,22 @@ router.put('/update/:ownerid',(req,res)=>{
             if(!result){
                 return res.status(404).send({message:"Owner Not found to update"});
             }else{
-                return res.status(200).send({AppointmentUpdated:result,message:"Owner Updated Successfully"});
+                userCredential.findOneAndUpdate({email:req.body.owner.email},{$set:{email:req.params.owner.email}, returnNewDocument:true})
+                .then(rest => {
+                    if(rest) {
+                        return res.status(200).send({AppointmentUpdated:result,message:"Owner Updated Successfully"});
+                    }
+                    else{
+                        return res.status(500).send({message:"Could Not Process Request"});
+                    }
+                })
+                .catch(err=>{
+                    return res.status(500).send({message:"Could Not Process Request"});
+                })
             }
         })
-        .catch(err=>{
-            return res.status(500).send({message:"Could Not Process Request"});
-        })
-    }
-});
+        }
+    });
 
 router.get('/getOwnerId/:email',(req,res)=>{
     console.log("In getOwnerId");
@@ -109,7 +117,8 @@ router.get('/getOwnerId/:email',(req,res)=>{
         if(user.length===0){
             return res.status(404).send({message:"User Not found"});
         }
-        else{return res.status(200).send({ownerId:user[0]._id});}
+        else{        console.log(user);
+            return res.status(200).send({ownerId:user[0]._id,owner:user[0]});}
     })
 });
 
@@ -121,6 +130,7 @@ router.get('/setNotificationToken/:type/:email/:token',(req,res)=>{
         .then(result =>{
             console.log(result)
             console.log('Added NotificationToken')
+            return res.status(200)
         })
         .catch(err =>{console.log(err)})
     }
@@ -129,6 +139,7 @@ router.get('/setNotificationToken/:type/:email/:token',(req,res)=>{
         .then(result =>{
             console.log(result)
             console.log('Added NotificationToken')
+            return res.status(200)
         })
         .catch(err =>{console.log(err)})
 
