@@ -79,13 +79,19 @@ router.put('/update/:customerId', (req, res) => {
         return res.status(400).send({ message: "Cannot Update Customer with no Reference" });
     }
     else {
-        CUSTOMERS.findByIdAndUpdate(req.params.customerId, req.body, { new: true })
-            .then(result => {
+
+        CUSTOMERS.findById(req.params.customerId)
+            .then(async result => {
                 if (!result) {
                     return res.status(404).send({ message: "Custoemr Not found to update" });
                 } else {
-                    userCredential.findOneAndUpdate({email:req.body.email},{ email: req.body.email }, {new:true})
+                    let email = result.email
+                    await result.update(req.body)
+                    console.log(result)
+
+                    userCredential.findOneAndUpdate({email:email},{ email: req.body.email }, {new:true})
                     .then(ansert => {
+                        console.log(ansert)
                         return res.status(200).send({ UpdatedCustomer: result, message: "Customer Updated Successfully" });
                     }).catch(err=>{
                         return res.status(500).send({ message: "Could Not Process Request" });
