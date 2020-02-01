@@ -77,22 +77,22 @@ router.get('/getOwner/:OwnerId',(req,res)=>{
 
 const userCredential = require('../Models/UserCredential')
 router.put('/update/:ownerid',(req,res)=>{
-    if(!req.body.content){
+    if(!req.body){
         return res.status(400).send({message:"Cannot Update Owner with no Reference"});
     }
     else{
-        Owner.findByIdAndUpdate(req.params.appointmentId,{
-            firstName:req.body.owner.firstName,
-            lastName:req.body.owner.lastName,
-            email:req.body.owner.email,
-            imageUrl:req.body.owner.imageUrl,
-            phone:req.body.owner.phone
+        Owner.findByIdAndUpdate(req.params.ownerid,{
+            firstName:req.body.firstName,
+            lastName:req.body.lastName,
+            email:req.body.email,
+            imageUrl:req.body.imageUrl,
+            phone:req.body.phone
         },{new:true})
         .then(result =>{
             if(!result){
                 return res.status(404).send({message:"Owner Not found to update"});
             }else{
-                userCredential.findOneAndUpdate({email:req.body.owner.email},{$set:{email:req.params.owner.email}, returnNewDocument:true})
+                userCredential.findOneAndUpdate({email:req.body.email},{$set:{email:req.params.email}, new:true})
                 .then(rest => {
                     if(rest) {
                         return res.status(200).send({AppointmentUpdated:result,message:"Owner Updated Successfully"});
