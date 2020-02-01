@@ -81,27 +81,30 @@ router.put('/update/:ownerid',(req,res)=>{
         return res.status(400).send({message:"Cannot Update Owner with no Reference"});
     }
     else{
-        Owner.findByIdAndUpdate(req.params.ownerid,{
-            firstName:req.body.firstName,
-            lastName:req.body.lastName,
-            email:req.body.email,
-            imageUrl:req.body.imageUrl,
-            phone:req.body.phone
-        },{new:true})
-        .then(result =>{
+        Owner.findById(req.params.ownerid)
+        .then(async result =>{
             if(!result){
                 return res.status(404).send({message:"Owner Not found to update"});
             }else{
-                userCredential.findOneAndUpdate({email:req.body.email},{$set:{email:req.params.email}, new:true})
+                let em = result.email.toString()
+                console.log('Email:===========>',em, 'Type: =======>',typeof(em))
+                await result.updateOne({
+                    firstName:req.body.firstName,
+                    lastName:req.body.lastName,
+                    email:req.body.email,
+                    imageUrl:req.body.imageUrl,
+                    phone:req.body.phone})
+//                userCredential.findOneAndUpdate({email:em},,{$set:{email:req.body.email}, new:true})
+                console.log({email:em})
+                userCredential.findOneAndUpdate({email:em},{email:req.body.email})
                 .then(rest => {
+                    console.log(rest)
                     if(rest) {
                         return res.status(200).send({AppointmentUpdated:result,message:"Owner Updated Successfully"});
                     }
-                    else{
-                        return res.status(500).send({message:"Could Not Process Request"});
-                    }
                 })
                 .catch(err=>{
+                        console.log('General ======>', err)
                     return res.status(500).send({message:"Could Not Process Request"});
                 })
             }
