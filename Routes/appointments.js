@@ -75,8 +75,8 @@ router.post('/giveReview',(req,res)=>{
     const object = new AppointmentReview(req.body);
     object.save().then(result=>{
         AppointmentReview.findOne({_id:result._id})
-        .populate('owner',{firstName:1,lastName:1,notificationToken})
-        .populate('customer',{firstName:1,lastName:1,notificationToken})
+        .populate('owner',{firstName:1,lastName:1,notificationToken:1})
+        .populate('customer',{firstName:1,lastName:1,notificationToken:1})
         .populate('store',{name:1})
         .populate('appointment',{meetingDate:1,package:1})
         .then(result1 => {
@@ -127,6 +127,7 @@ router.post('/giveReview',(req,res)=>{
         return;
     })
     .catch(err => {
+        console.log(err)
         res.status(500).send({message:"Could Not Add New Appointment, Try Again"});
         return;
     });
