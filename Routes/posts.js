@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const Post = require('../Models/Posts');
+const comments = require('../Models/comments');
+
 const mongoose = require('mongoose');
 const Owner = require('../Models/Owners');
 var aws = require('aws-sdk');
@@ -54,10 +56,15 @@ router.delete('/delete/:PostId/:ownerId', async (req, res) => {
             });
 
             Post.findByIdAndRemove(PostId).then(result => {
+
                 if (!result) {
                     return res.status(404).send({ message: "Post Not Found" });
                 }
                 else {
+                    comments.deleteMany({post:PostId})
+                    .then(answ =>{
+                        console.log(answ)
+                    })
                     return res.status(200).send({ "PostId": result._id, "message": "Post Deleted Successfully" });
                 }
             })

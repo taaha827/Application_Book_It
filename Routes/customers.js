@@ -12,6 +12,7 @@ const COMMENT = require('../Models/comments');
 const AppointmentReview = require('../Models/OwnerReviews')
 const passport = require('../config/passport')
 const favourites = require('../Models/favourites');
+const comm = require('../Models/comments');
 const userCredential = require('../Models/UserCredential')
 
 
@@ -43,6 +44,10 @@ router.delete('/delete/:customerId', (req, res) => {
             res.status(400).send({ message: "Customer Not Found" });
             return;
         } else {
+            comm.deleteMany({CommentBy:customerId})
+            .then(res =>{console.log(res)}).catch(err=>{console.log(err)})
+            AppointmentReview.deleteMany({from:'customer',customer:{customerId}})
+            .then(rers => {console.log(rers)}).catch(err=>{console.log(err)})
             return res.status(200).send({ "CustomerId": result._id, "message": "Customer Deleted Successfully" });
         }
     })

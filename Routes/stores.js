@@ -5,6 +5,7 @@ const Store = require('../Models/Stores');
 const owner = require('../Models/Owners');
 const Posts = require('../Models/Posts');
 const faviorites = require('../Models/favourites');
+const reviews = require('../Models/OwnerReviews');
 const multer = require('multer');
 var storeLocation =  'uploads/Store/';
 const storage = multer.diskStorage({
@@ -61,6 +62,7 @@ router.post('/create',(req,res)=>{
     }
 });
 
+const comments = require('../Models/comments');
 
 
 router.delete('/delete/:storeId/:ownerId',async (req,res)=>{
@@ -104,12 +106,30 @@ router.delete('/delete/:storeId/:ownerId',async (req,res)=>{
                     return res.status(404).send({message:"Store Not Found"});
                 }
                 else{
-                    Posts.deleteMany({store:storeId}),function(err){
-                        if(err){
-                            return res.status(414).json({message:"Not all Posts Deleted of store"});
-                        }
-                        }
-                        return res.status(200).send({"storeId":store._id,"message":"Store Deleted Successfully"});
+                    faviorites.deleteMany({store:storeId})
+                    .then(result1 =>{
+                        console.log(result1)
+                    })
+                    reviews.deleteMany({store:storeId})
+                    .then(result=>{
+                        console.log(result)
+                    })
+                    Posts.find({store:storeId})
+                    .then(result1 => {
+                        result1 = result1.map(val => {return val._id})
+                        Posts.deleteMany({_id:{$in : result1}})
+                        .then(answer =>{
+                            console.log(answer)
+                        })
+                        .catch(err => { console.log(err)})
+                    })
+                    comments.deleteMany({post:{$in : result1}})
+                    .then(answerrs =>{
+                        console.log(answerrs)
+                    })
+                    .catch(err1 =>{ console.log(err1)})
+
+                    return res.status(200).send({"storeId":store._id,"message":"Store Deleted Successfully"});
                 }
             })
         }

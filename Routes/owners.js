@@ -2,7 +2,11 @@ const express = require("express");
 const router = express.Router();
 const Owner = require('../Models/Owners');
 const mongoose = require('mongoose');
+const STORES = require('../Models/Stores');
 const Customer = require('../Models/Customers')
+const POSTS = require('../Models/Posts')
+const COMMENTS = require('../Models/comments')
+const REVIEWS = require('../Models/OwnerReviews')
 /*customer
 owner
 store
@@ -41,6 +45,24 @@ router.delete('/delete/:OwnerId',(req,res)=>{
             res.status(400).send({message:"Owner Not Found"});
             return;
         }else{
+            STORES.find({owner:OwnerId})
+            .then(res =>{
+                res = res.map(val=>{return val._id})
+                STORES.deleteMany({owner:OwnerId}).then(res12=>{console.log(res12)}).catch(err=>{console.log(err)})
+                POST.find({store:{$in:res}})
+                .then(postss =>{
+                    postss = postss.map(val=>{return val._id})
+                    POST.deleteMany({store:{$in:res}}).then(test =>{console.log(test)}).catch(err=>{console.log(err)})
+                    COMMENTS.deleteMany({post:{$in:{postss}}})
+                    .then(test1=>{console.log(test1)})
+                    .catch(err=>{console.log(err)})
+                    REVIEWS.deleteMany({owner:OwnerId})
+                    .then(reulting =>{console.log(reulting)})
+                    .catch(err=>{console.log(err)})
+                })
+
+
+        }).catch(err=>{console.log(err)})
             Owner.findByIdAndRemove(OwnerId).then(result=>{
                 if(!result){
                     return res.status(404).send({message:"Owner Not Found"});
