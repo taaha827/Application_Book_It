@@ -24,7 +24,9 @@ const postRoutes  = require('./Routes/posts');
 const reviewRoutes =require('./Routes/reviews');
 const storeRoutes  = require('./Routes/stores');
 const generalRoute = require('./Routes/gerneal');
+const paymentRoute = require('./Routes/payment');
 
+app.use('/payment',paymentRoute);
 app.use("/appointments",appointmentRoutes);
 app.use("/customer",customerRouters);
 app.use("/owner",ownerRoutes);
