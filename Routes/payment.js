@@ -50,7 +50,6 @@ router.get('/get/:userId',(req,res)=>{
         Payment.find({user:req.params.userId})
         .then(payments=>{
             console.log(payments)
-            console.log(req.params.userUd)
             if(!payments){
                 return res.status(404).send({message:'No Payments Found'})
             }
