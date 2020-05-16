@@ -82,6 +82,7 @@ router.post('/giveReview',(req,res)=>{
         .populate('appointment',{meetingDate:1,package:1})
         .then(result1 => {
             let to 
+            console.log(result1)
             if(result1.from === 'owner') {
                 to = result1.customer.notificationToken
                 by = result1.owner.firstName + ' ' + result1.owner.lastName
@@ -92,8 +93,8 @@ router.post('/giveReview',(req,res)=>{
             var message = {
                 to:to,
                 notification: {
-                    title: 'Review Recievedd',
-                    body: `${by} left you a review on an appointment ` 
+                    title: 'New Review',
+                    body: `${by} left you ${result1.numberOfStars}a review on an appointment ` 
                 },
                 data: {
                     type: 'Review',
@@ -575,13 +576,13 @@ router.put('/update/:appointmentId/:status',(req,res)=>{
                         by = result.customer.firstName + ' ' + result.customer.lastName
                     }else{
                         not = result.customer.notificationToken
-                        by = result.customer.firstName + ' ' + result.customer.lastName
+                        by = result.owner.firstName + ' ' + result.owner.lastName
                     }
                     var message = {
                         to: not,
                         notification: {
-                            title: 'Appointment Status Changed',
-                            body: `Appointment Status change on AppointmentId ${result._id} ` 
+                            title: `Appointment ${capitalizeFirstLetter(req.params.status)}`,
+                            body: `Appointment was ${capitalizeFirstLetter(req.params.status)} by ${by} scheduled on ${moment(result.meetingDate).format('MMMM D, YYYY')} ` 
                         },
                         data: {
                             type: 'appointment',
@@ -618,5 +619,8 @@ router.put('/update/:appointmentId/:status',(req,res)=>{
         })
     
 });
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
 
 module.exports = router;
