@@ -135,7 +135,7 @@ router.put('/update/:ownerid',(req,res)=>{
         }
     });
 
-router.get('/getOwnerId/:email',passport.authenticate('jwt', { session: false }),(req,res)=>{
+router.get('/getOwnerId/:email',(req,res)=>{
     console.log("In getOwnerId");
     console.log(req.params.email);
     Owner.find({email:req.params.email}).then(user=>{
