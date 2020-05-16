@@ -15,17 +15,17 @@ let newConfig = {
     'passReqToCallback': process.env.passReqToCallback || config.jwtOptions.passReqToCallback
   }
 }
-newConfig.jwtOptions.jwtFromRequest = ExtractJwt.fromBodyField('token')
-
+newConfig.jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken()
 
 var strategy = new JwtStrategy(newConfig.jwtOptions, (req, jwtPayload, next) => {
     console.log('In Strategy')
-    console.log(jwtPayload.data.email)
-  if (!jwtPayload || !jwtPayload.data) {
+    console.log(jwtPayload)
+    
+  if (!jwtPayload) {
     next(null, false)
     return
   }
-  jwtPayload = jwtPayload.data
+  jwtPayload = jwtPayload
  
   console.log(jwtPayload.email)
   User.findOne({

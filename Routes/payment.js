@@ -21,8 +21,8 @@ router.post('/create', (req, res) => {
         }else if(productId==='yearly'){
             endDate.setFullYear(startDate.getFullYear()+1)
         }
-        req.body.startDate = startDate
-        req.body.endDate = endDate
+        req.body.startDate = moment(startDate).toDate()
+        req.body.endDate = moment(endDate).toDate()
         
         const newPayment = new Payment(req.body);
         newPayment.save().then(result => {

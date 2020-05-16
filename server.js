@@ -9,6 +9,7 @@ const passport = require('./config/passport')
 app.use(express.urlencoded({extended:false}));
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json());
+app.use(bodyParser.raw());
 
 app.use(express.static("uploads/Store"))
 app.use(express.static("uploads/Customer"))

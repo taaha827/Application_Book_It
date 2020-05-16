@@ -8,6 +8,7 @@ const customer = require('../Models/Customers');
 var FCM = require('fcm-node')
 var serverKey = 'AAAA1c07Ogk:APA91bGBHY1BcODcHD1k-rkZ7V9KEIMBe-eV7mHICL35bx91nzrqJ31t3oUeuX7ZK2JYArQSqGuQBKL89d4ddpC4CYzVCT6skQE1_2qVUkq_QlV09r_rXPLZ0dAlT8-lbadBPjwoBJ7a'
 let fcm = new FCM(serverKey)
+let moment = require('moment')
 /*customer
 owner
 store
@@ -104,7 +105,7 @@ router.post('/giveReview',(req,res)=>{
                     ownerName : `${result1.owner.firstName} ${result1.owner.lastName}`,
                     ownerId: result1.owner._id,
                     appointmentId: result1.appointment._id,
-                    meetingDate: result1.appointment.meetingDate,
+                    meetingDate: moment(new Date(result1.appointment.meetingDate)).toDate(),
                     package: result1.appointment.package,
                     store: result1.store._id
                 }

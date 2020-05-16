@@ -7,6 +7,7 @@ const Customer = require('../Models/Customers')
 const POSTS = require('../Models/Posts')
 const COMMENTS = require('../Models/comments')
 const REVIEWS = require('../Models/OwnerReviews')
+const passport = require('../config/passport');
 /*customer
 owner
 store
@@ -134,7 +135,7 @@ router.put('/update/:ownerid',(req,res)=>{
         }
     });
 
-router.get('/getOwnerId/:email',(req,res)=>{
+router.get('/getOwnerId/:email',passport.authenticate('jwt', { session: false }),(req,res)=>{
     console.log("In getOwnerId");
     console.log(req.params.email);
     Owner.find({email:req.params.email}).then(user=>{
