@@ -6,7 +6,7 @@ const AppointmentReview = require('../Models/OwnerReviews');
 const owner = require('../Models/Owners');
 const customer = require('../Models/Customers');
 var FCM = require('fcm-node')
-var serverKey = 'AAAA1c07Ogk:APA91bGBHY1BcODcHD1k-rkZ7V9KEIMBe-eV7mHICL35bx91nzrqJ31t3oUeuX7ZK2JYArQSqGuQBKL89d4ddpC4CYzVCT6skQE1_2qVUkq_QlV09r_rXPLZ0dAlT8-lbadBPjwoBJ7a'
+var serverKey = 'AAAAJ4SWhiA:APA91bE4P_MfCHL07moUFiAheyDMjtH6wpH_M82vul8jNlmrNyaY2D9H-tuAnwlEXWHT09x8uY8Os-t4pe5Tdo-41TIm6pWKJt-LY6aoLEphiL9SINFOvsU5iK_tYegljT_u8xpzfI51'
 let fcm = new FCM(serverKey)
 let moment = require('moment')
 /*customer
@@ -566,16 +566,16 @@ router.put('/update/:appointmentId/:status',(req,res)=>{
                 let by 
                 appointment.findOne({_id:result.id})
                 .populate('owner',{notificationToken:1,firstName:1,lastName:1})
-                .populate('customer',{firstName:1,lastName:1})
+                .populate('customer',{notificationToken:1,firstName:1,lastName:1})
                 .populate('store',{name:1})
                 .then(result => {
-                    console.log(result.owner)
+                    console.log(result)
                     if(req.body.changedBy ==='customer'){
                         not = result.owner.notificationToken
                         by = result.customer.firstName + ' ' + result.customer.lastName
                     }else{
                         not = result.customer.notificationToken
-                        by = result.owner.firstName + ' ' + result.owner.lastName
+                        by = result.customer.firstName + ' ' + result.customer.lastName
                     }
                     var message = {
                         to: not,
@@ -597,6 +597,7 @@ router.put('/update/:appointmentId/:status',(req,res)=>{
                             status: result.status
                         }
                     }
+                    console.log(message)
                     if(message.to!==''){
                     fcm.send(message,function(err, response) {
                         if(err) {
