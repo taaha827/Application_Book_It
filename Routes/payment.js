@@ -57,48 +57,54 @@ router.get('/get/:userId',(req,res)=>{
 })
 router.get('/get/status/:ownerId',async (req,res)=>{
     if(req.params.ownerId){
+        console.log(new Date())
         let storeCount = await stores.countDocuments({owner:req.params.ownerId})
-        console.log(storeCount)
-        if(storeCount <= 3){
-            return res.status(200).send({status:'active'})
-        } else{
-            Payment.find({user:req.params.ownerId}).sort({startDate: -1}).limit(1)
-            .then(payments=>{
-                // console.log(payments)
-                // console.log(payments)
-                if(!payments){
-                    return res.status(404).send({status:404,message:'No Subscriptions Found'})
-                }
-                else{
-                   let p = payments[0]
-                    var diff = new Date().setHours(12) - new Date(p.startDate).setHours(12);
-                    let a  = Math.round(diff/8.64e7);
-                    console.log(a)
-                    if(p.productId == 'monthly_subscription'){
-                        // console.log(date)
-                        // console.log(endDate.setDate(currentDate.getDate()+30).toLocaleDateString()  )   
-                        // endDate.setDate(currentDate.getDate()+30)  
-                        if(a<=30){
-                            return res.status(200).send({status:'active'})
-                        }else {
-                            return res.status(200).send({status:'expired'}) 
-                        }         
-                    } else{
-                        // endDate.setFullYear(date.getFullYear()+1)
-                        if(a<=365){
-                            return res.status(200).send({status:'active'}.toLocaleString())
-                        }else {
-                            return res.status(200).send({status:'expired'}) 
-                        } 
+        if(storeCount){
+            if(storeCount <= 3){
+                return res.status(200).send({status:'active'})
+            } else{
+                Payment.find({user:req.params.ownerId}).sort({startDate: -1}).limit(1)
+                .then(payments=>{
+                    // console.log(payments)
+                    // console.log(payments)
+                    if(!payments){
+                        return res.status(404).send({status:404,message:'No Subscriptions Found'})
                     }
-                
-                }
-            })
-            .catch(err=>{
-                console.log(err)
-                return res.status(500).send({message:'Could not process request!!'})
-            })
+                    else{
+                       let p = payments[0]
+                        var diff = new Date().setHours(12) - new Date(p.startDate).setHours(12);
+                        let a  = Math.round(diff/8.64e7);
+                        console.log(a)
+                        if(p.productId == 'monthly_subscription'){
+                            // console.log(date)
+                            // console.log(endDate.setDate(currentDate.getDate()+30).toLocaleDateString()  )   
+                            // endDate.setDate(currentDate.getDate()+30)  
+                            if(a<=30){
+                                return res.status(200).send({status:'active'})
+                            }else {
+                                return res.status(200).send({status:'expired'}) 
+                            }         
+                        } else{
+                            // endDate.setFullYear(date.getFullYear()+1)
+                            if(a<=365){
+                                return res.status(200).send({status:'active'}.toLocaleString())
+                            }else {
+                                return res.status(200).send({status:'expired'}) 
+                            } 
+                        }
+                    
+                    }
+                })
+                .catch(err=>{
+                    console.log(err)
+                    return res.status(500).send({message:'Could not process request!!'})
+                })
+            }
         }
+        else {
+            return res.status(200).send({status:'active'})
+        }
+       
       
     }   
     else{
