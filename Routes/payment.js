@@ -16,9 +16,9 @@ router.post('/create', (req, res) => {
         const productId = req.body['productId'];
         let startDate = new Date();
         let endDate = new Date();
-        if(productId ==='monthly'){
+        if(productId ==='monthly_subscription'){
             endDate.setDate(startDate.getDate()+30) 
-        }else if(productId==='yearly'){
+        }else if(productId==='yearly_subscription'){
             endDate.setFullYear(startDate.getFullYear()+1)
         }
         req.body.startDate = moment(startDate).toDate()
@@ -58,6 +58,56 @@ router.get('/get/:userId',(req,res)=>{
             }
         })
         .catch(err=>{
+            return res.status(500).send({message:'Could not process request!!'})
+        })
+    }   
+    else{
+        return res.status(402).send({message:'User id can not be empty'})
+    }
+})
+router.get('/get/status/:ownerId',(req,res)=>{
+    if(req.params.ownerId){
+        
+        Payment.find({user:req.params.ownerId})
+        .then(payments=>{
+            // console.log(payments)
+            if(!payments){
+                return res.status(404).send({status:404,message:'No Subscriptions Found'})
+            }
+            else{
+                let result = []
+                let currentDate = new Date()
+                payments.forEach(payment => {
+                    if(currentDate < payment.endDate){
+                        console.log('Subscription is valid')
+                        // console.log(payment)
+                        result.push({
+                            orderId: payment.orderId,
+                            status:'active',
+                            purchaseToken: payment.purchaseToken,
+                            owner:payment.user,
+                            startDate:payment.startDate,
+                            endDate:payment.endDate
+
+                        })
+                    }
+                    else if(currentDate > payment.endDate){
+                        console.log('Subscription has expired')
+                        result.push({
+                            orderId: payment.orderId,
+                            status:'expired',
+                            purchaseToken: payment.purchaseToken,
+                            owner:payment.user,
+                            startDate:payment.startDate,
+                            endDate:payment.endDate
+                        })
+                    }
+                })
+                return res.status(200).send(result)
+            }
+        })
+        .catch(err=>{
+            console.log(err)
             return res.status(500).send({message:'Could not process request!!'})
         })
     }   

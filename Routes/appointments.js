@@ -94,7 +94,7 @@ router.post('/giveReview',(req,res)=>{
                 to:to,
                 notification: {
                     title: 'New Review',
-                    body: `${by} left you ${result1.numberOfStars}a review on an appointment ` 
+                    body: `${by} left you a ${result1.numberOfStars} star review on an appointment ` 
                 },
                 data: {
                     type: 'Review',
