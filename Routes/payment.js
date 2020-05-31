@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 const passport = require('../config/passport')
 const Payment = require('../Models/Payment');
 const userCredential = require('../Models/UserCredential')
-
+const stores = require('../Models/Stores')
 router.post('/create', (req, res) => {
     if (!req.body) {
         res.status(400).send({ message: 'All Required fields Not Entered' });
@@ -14,16 +14,6 @@ router.post('/create', (req, res) => {
     }
     else {
         const productId = req.body['productId'];
-        let startDate = new Date();
-        let endDate = new Date();
-        if(productId ==='monthly_subscription'){
-            endDate.setDate(startDate.getDate()+30) 
-        }else if(productId==='yearly_subscription'){
-            endDate.setFullYear(startDate.getFullYear()+1)
-        }
-        req.body.startDate = moment(startDate).toDate()
-        req.body.endDate = moment(endDate).toDate()
-        
         const newPayment = new Payment(req.body);
         newPayment.save().then(result => {
             Payment.find({user: result.user})
@@ -65,51 +55,51 @@ router.get('/get/:userId',(req,res)=>{
         return res.status(402).send({message:'User id can not be empty'})
     }
 })
-router.get('/get/status/:ownerId',(req,res)=>{
+router.get('/get/status/:ownerId',async (req,res)=>{
     if(req.params.ownerId){
-        
-        Payment.find({user:req.params.ownerId})
-        .then(payments=>{
-            // console.log(payments)
-            if(!payments){
-                return res.status(404).send({status:404,message:'No Subscriptions Found'})
-            }
-            else{
-                let result = []
-                let currentDate = new Date()
-                payments.forEach(payment => {
-                    if(currentDate < payment.endDate){
-                        console.log('Subscription is valid')
-                        // console.log(payment)
-                        result.push({
-                            orderId: payment.orderId,
-                            status:'active',
-                            purchaseToken: payment.purchaseToken,
-                            owner:payment.user,
-                            startDate:payment.startDate,
-                            endDate:payment.endDate
-
-                        })
+        let storeCount = await stores.countDocuments({owner:req.params.ownerId})
+        console.log(storeCount)
+        if(storeCount <= 1){
+            return res.status(200).send({status:'active'})
+        } else{
+            Payment.find({user:req.params.ownerId}).sort({startDate: -1}).limit(1)
+            .then(payments=>{
+                // console.log(payments)
+                // console.log(payments)
+                if(!payments){
+                    return res.status(404).send({status:404,message:'No Subscriptions Found'})
+                }
+                else{
+                   let p = payments[0]
+                    var diff = new Date().setHours(12) - new Date(p.startDate).setHours(12);
+                    let a  = Math.round(diff/8.64e7);
+                    console.log(a)
+                    if(p.productId == 'monthly_subscription'){
+                        // console.log(date)
+                        // console.log(endDate.setDate(currentDate.getDate()+30).toLocaleDateString()  )   
+                        // endDate.setDate(currentDate.getDate()+30)  
+                        if(a<=30){
+                            return res.status(200).send({status:'active'})
+                        }else {
+                            return res.status(200).send({status:'expired'}) 
+                        }         
+                    } else{
+                        // endDate.setFullYear(date.getFullYear()+1)
+                        if(a<=365){
+                            return res.status(200).send({status:'active'}.toLocaleString())
+                        }else {
+                            return res.status(200).send({status:'expired'}) 
+                        } 
                     }
-                    else if(currentDate > payment.endDate){
-                        console.log('Subscription has expired')
-                        result.push({
-                            orderId: payment.orderId,
-                            status:'expired',
-                            purchaseToken: payment.purchaseToken,
-                            owner:payment.user,
-                            startDate:payment.startDate,
-                            endDate:payment.endDate
-                        })
-                    }
-                })
-                return res.status(200).send(result)
-            }
-        })
-        .catch(err=>{
-            console.log(err)
-            return res.status(500).send({message:'Could not process request!!'})
-        })
+                
+                }
+            })
+            .catch(err=>{
+                console.log(err)
+                return res.status(500).send({message:'Could not process request!!'})
+            })
+        }
+      
     }   
     else{
         return res.status(402).send({message:'User id can not be empty'})
