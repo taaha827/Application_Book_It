@@ -59,7 +59,7 @@ router.get('/get/status/:ownerId',async (req,res)=>{
     if(req.params.ownerId){
         let storeCount = await stores.countDocuments({owner:req.params.ownerId})
         console.log(storeCount)
-        if(storeCount <= 1){
+        if(storeCount <= 3){
             return res.status(200).send({status:'active'})
         } else{
             Payment.find({user:req.params.ownerId}).sort({startDate: -1}).limit(1)
