@@ -68,7 +68,7 @@ router.get('/get/status/:ownerId',async (req,res)=>{
                     // console.log(payments)
                     // console.log(payments)
                     if(!payments || payments.length == 0){
-                        return res.status(200).send({status:'active'})                    }
+                        return res.status(200).send({status:'expired'})                    }
                     else{
                         console.log(payments)
                        let p = payments[0]
