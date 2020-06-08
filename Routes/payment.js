@@ -67,10 +67,10 @@ router.get('/get/status/:ownerId',async (req,res)=>{
                 .then(payments=>{
                     // console.log(payments)
                     // console.log(payments)
-                    if(!payments){
-                        return res.status(404).send({status:404,message:'No Subscriptions Found'})
-                    }
+                    if(!payments || payments.length == 0){
+                        return res.status(200).send({status:'active'})                    }
                     else{
+                        console.log(payments)
                        let p = payments[0]
                         var diff = new Date().setHours(12) - new Date(p.startDate).setHours(12);
                         let a  = Math.round(diff/8.64e7);
